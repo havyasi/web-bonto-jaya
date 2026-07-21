@@ -219,8 +219,10 @@ export default function AdminDashboardPage() {
       let fotoUrl = foto;
       if (fotoFile) {
         const uploadedUrl = await uploadPhoto(fotoFile);
-        if (!uploadedUrl) { setIsSaving(false); return; }
-        fotoUrl = uploadedUrl;
+        if (uploadedUrl) {
+          fotoUrl = uploadedUrl;
+        }
+        // Jika upload gagal, lanjutkan dengan gambar default
       }
       if (!fotoUrl) fotoUrl = 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=600&auto=format&fit=crop';
 
