@@ -23,7 +23,7 @@ export default function PetaUMKMPage() {
 
         if (error) throw error;
 
-        if (data && data.length > 0) {
+        if (data) {
           const mapped: UMKM[] = data.map((row: any) => ({
             id: row.id,
             nama: row.nama,

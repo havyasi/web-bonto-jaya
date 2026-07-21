@@ -22,20 +22,19 @@ import {
 
 export default function HomePage() {
   const [umkmList, setUmkmList] = useState<UMKM[]>(MOCK_UMKM);
+  const [beritaList, setBeritaList] = useState<Berita[]>(MOCK_BERITA);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchUMKM() {
+    async function fetchData() {
       try {
-        const { data, error } = await supabase
-          .from('umkm')
-          .select('*')
-          .order('created_at', { ascending: false });
+        const [umkmRes, beritaRes] = await Promise.all([
+          supabase.from('umkm').select('*').order('created_at', { ascending: false }),
+          supabase.from('berita').select('*').order('created_at', { ascending: false })
+        ]);
 
-        if (error) throw error;
-
-        if (data && data.length > 0) {
-          const mapped: UMKM[] = data.map((row: any) => ({
+        if (umkmRes.data) {
+          const mapped: UMKM[] = umkmRes.data.map((row: any) => ({
             id: row.id,
             nama: row.nama,
             pemilik: row.pemilik,
@@ -52,19 +51,32 @@ export default function HomePage() {
           }));
           setUmkmList(mapped);
         }
-        // If data is empty, keep mock data as fallback
+
+        if (beritaRes.data) {
+          const mappedB: Berita[] = beritaRes.data.map((row: any) => ({
+            id: row.id,
+            judul: row.judul,
+            slug: row.slug ?? row.id,
+            kategori: row.kategori,
+            tanggal: row.tanggal ?? (row.created_at ? new Date(row.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Terbaru'),
+            penulis: row.penulis ?? 'Admin Desa',
+            ringkasan: row.ringkasan ?? '',
+            konten: row.konten,
+            gambar: row.gambar,
+          }));
+          setBeritaList(mappedB);
+        }
       } catch (err) {
-        console.warn('Gagal mengambil data UMKM dari Supabase, menggunakan data lokal:', err);
-        // Keep mock data as fallback
+        console.warn('Gagal mengambil data dari Supabase:', err);
       } finally {
         setIsLoading(false);
       }
     }
-    fetchUMKM();
+    fetchData();
   }, []);
 
   const featuredUMKM = umkmList.slice(0, 3);
-  const featuredBerita = LIST_BERITA.slice(0, 3);
+  const featuredBerita = beritaList.slice(0, 3);
 
   return (
     <div className="space-y-16 pb-16">

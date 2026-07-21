@@ -18,7 +18,7 @@ export interface Berita {
   id: string;
   judul: string;
   slug: string;
-  kategori: 'Pembangunan' | 'Kegiatan' | 'Pengumuman' | 'APBDes';
+  kategori: 'Pembangunan' | 'Kegiatan' | 'Pengumuman';
   tanggal: string;
   penulis: string;
   ringkasan: string;
@@ -62,119 +62,10 @@ export const DATA_DESA = {
   pusatKoordinat: [-5.518, 119.925] as [number, number], // Koordinat sekitar Bantaeng/Sulsel
 };
 
-export const LIST_UMKM: UMKM[] = [
-  {
-    id: "umkm-1",
-    nama: "Kerajinan Anyaman Bambu Jaya",
-    pemilik: "Pak Syamsuddin",
-    kategori: "Kerajinan",
-    latitude: -5.5175,
-    longitude: 119.9242,
-    alamat: "Dusun Bonto Tinggi RT 02/RW 01",
-    kontakWA: "6281234567890",
-    foto: "https://images.unsplash.com/photo-1590736969955-71cc94801759?q=80&w=600&auto=format&fit=crop",
-    deskripsi: "Pusat produksi anyaman bambu tradisional seperti bakul, tudung saji, hiasan dinding, dan tas etnik ramah lingkungan.",
-    jamOperasional: "08.00 - 17.00 WITA",
-    produkUnggulan: ["Bakul Bambu Motif", "Tudung Saji Modern", "Tas Anyaman Souvenir"],
-    rating: 4.9,
-  },
-  {
-    id: "umkm-2",
-    nama: "Warung Kopi & Kuliner Khas Kancing",
-    pemilik: "Ibu Hajar",
-    kategori: "Kuliner",
-    latitude: -5.5190,
-    longitude: 119.9265,
-    alamat: "Jl. Poros Utama Dusun Bonto Bira",
-    kontakWA: "6282198765432",
-    foto: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=600&auto=format&fit=crop",
-    deskripsi: "Menyajikan kue tradisional seperti Cucur Bayao, Barongko, dan Kopi Arabika lokal racikan khas warga Desa Bonto Jaya.",
-    jamOperasional: "07.00 - 21.00 WITA",
-    produkUnggulan: ["Kopi Robusta Bonto", "Cucur Bayao", "Barongko Manis"],
-    rating: 4.8,
-  },
-  {
-    id: "umkm-3",
-    nama: "Kebun Madu Hutan Trigona Bonto",
-    pemilik: "Daeng Raba",
-    kategori: "Pertanian",
-    latitude: -5.5160,
-    longitude: 119.9280,
-    alamat: "Area Perkebunan Dusun Kampong Beru",
-    kontakWA: "6285341239876",
-    foto: "https://images.unsplash.com/photo-1587049352847-4a222e784d38?q=80&w=600&auto=format&fit=crop",
-    deskripsi: "Budidaya madu kelulut/trigona asli tanpa bahan pengawet. Kaya akan propolis alami dan asam organik untuk kesehatan.",
-    jamOperasional: "08.00 - 16.00 WITA",
-    produkUnggulan: ["Madu Trigona Murni 250ml", "Propolis Tetes Alami"],
-    rating: 5.0,
-  },
-  {
-    id: "umkm-4",
-    nama: "Bengkel Sepeda Motor & Las Bonto Mandiri",
-    pemilik: "Pak Aris",
-    kategori: "Jasa",
-    latitude: -5.5185,
-    longitude: 119.9220,
-    alamat: "Jl. Samping Lapangan Olahraga Desa",
-    kontakWA: "6281355667788",
-    foto: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=600&auto=format&fit=crop",
-    deskripsi: "Layanan perbaikan sepeda motor, ganti oli, tune up, serta jasa pengelasan pagar, kanopi, dan alat-alat pertanian warga.",
-    jamOperasional: "08.00 - 18.00 WITA",
-    produkUnggulan: ["Servis Injeksi Motor", "Las Pagar & Alat Tani"],
-    rating: 4.7,
-  },
-  {
-    id: "umkm-5",
-    nama: "Toko Sembako & Hasil Tani Berkah",
-    pemilik: "Ibu Nurhayati",
-    kategori: "Perdagangan",
-    latitude: -5.5205,
-    longitude: 119.9250,
-    alamat: "Dusun Bonto Jaya Barat No. 12",
-    kontakWA: "6285299881122",
-    foto: "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=600&auto=format&fit=crop",
-    deskripsi: "Menyediakan kebutuhan pokok harian warga serta menjual hasil bumi desa seperti beras merah, jagung pipil, dan cengkeh.",
-    jamOperasional: "06.00 - 21.00 WITA",
-    produkUnggulan: ["Beras Red Rice Organik", "Cengkeh Kering Kualitas A"],
-    rating: 4.9,
-  }
-];
+export const LIST_UMKM: UMKM[] = [];
 
-export const LIST_BERITA: Berita[] = [
-  {
-    id: "berita-1",
-    judul: "Musrenbangdes Bonto Jaya 2026: Prioritaskan Pembangunan Jalan Tani dan Digitalisasi UMKM",
-    slug: "musrenbangdes-2026-prioritas-jalan-tani-dan-umkm",
-    kategori: "Pembangunan",
-    tanggal: "18 Juli 2026",
-    penulis: "Sekretaris Desa",
-    ringkasan: "Pemerintah Desa Bonto Jaya menggelar Musyawarah Perencanaan Pembangunan Desa (Musrenbangdes) untuk menetapkan skala prioritas APBDes 2027.",
-    konten: "Musrenbangdes tahun ini berjalan dengan lancar dan dihadiri oleh jajaran BPD, kepala dusun, tokoh masyarakat, serta perwakilan kelompok tani & UMKM. Fokus utama alokasi anggaran adalah penyelesaian betonisasi jalan tani sepanjang 1.2 km serta penyediaan infrastruktur internet dan peta digital UMKM.",
-    gambar: "https://images.unsplash.com/photo-1577495508048-b635879837f1?q=80&w=600&auto=format&fit=crop",
-  },
-  {
-    id: "berita-2",
-    judul: "Pelatihan Pengemasan & Pemasaran Digital bagi Pelaku Usaha Kerajinan Desa",
-    slug: "pelatihan-pengemasan-pemasaran-digital-umkm",
-    kategori: "Kegiatan",
-    tanggal: "10 Juli 2026",
-    penulis: "Kaur Perencanaan",
-    ringkasan: "Sebanyak 25 pengrajin anyaman bambu mengikuti lokakarya branding dan pemasaran online untuk menembus pasar luar daerah.",
-    konten: "Dinas Koperasi dan UMKM bekerja sama dengan Pemdes Bonto Jaya menggelar pelatihan dua hari mengenai desain kemasan ramah lingkungan, fotografi produk dengan smartphone, serta tata cara pendaftaran toko online di marketplace nasional.",
-    gambar: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=600&auto=format&fit=crop",
-  },
-  {
-    id: "berita-3",
-    judul: "Pengumuman Jadwal Pelayanan Administrasi Keliling dan Posyandu Lansia",
-    slug: "pengumuman-jadwal-layanan-keliling-posyandu",
-    kategori: "Pengumuman",
-    tanggal: "02 Juli 2026",
-    penulis: "Kasi Kesejahteraan",
-    ringkasan: "Pelayanan pengurusan surat pengantar dan pemeriksaan kesehatan gratis akan diselenggarakan di Dusun Bonto Bira pekan ini.",
-    konten: "Guna mendekatkan pelayanan publik kepada warga, Pemerintah Desa Bonto Jaya meluncurkan program 'Desa Menyapa' dengan menghadirkan mobil pelayanan administrasi dan tim medis posyandu secara berkala di tiap-tiap dusun.",
-    gambar: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=600&auto=format&fit=crop",
-  }
-];
+export const LIST_BERITA: Berita[] = [];
+
 
 export const APBDES_DATA: APBDesData = {
   tahun: 2026,
