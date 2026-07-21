@@ -245,9 +245,9 @@ export default function AdminDashboardPage() {
         await fetchAllData();
       } else {
         if (editingUmkmId) {
-          setUmkmList(umkmList.map(u => u.id === editingUmkmId ? { ...u, ...newEntry, kontakWA: newEntry.kontak_wa, jamOperasional: newEntry.jam_operasional, produkUnggulan: newEntry.produk_unggulan } : u));
+          setUmkmList(umkmList.map(u => u.id === editingUmkmId ? { ...u, ...newEntry, kontakWA: newEntry.kontak_wa, jamOperasional: newEntry.jam_operasional } : u));
         } else {
-          setUmkmList([{ id: `umkm-${Date.now()}`, ...newEntry, kontakWA: newEntry.kontak_wa, jamOperasional: newEntry.jam_operasional, produkUnggulan: newEntry.produk_unggulan }, ...umkmList]);
+          setUmkmList([{ id: `umkm-${Date.now()}`, ...newEntry, kontakWA: newEntry.kontak_wa, jamOperasional: newEntry.jam_operasional, produkUnggulan: [] }, ...umkmList]);
         }
       }
 
