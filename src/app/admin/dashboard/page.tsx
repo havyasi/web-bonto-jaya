@@ -91,7 +91,10 @@ export default function AdminDashboardPage() {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (umkmError && beritaError) throw umkmError;
+      if (umkmError || beritaError) {
+        console.error('Supabase fetch error:', umkmError || beritaError);
+        throw umkmError || beritaError;
+      }
 
       setIsConnected(true);
 
