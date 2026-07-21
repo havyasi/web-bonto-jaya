@@ -4,17 +4,17 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { LIST_UMKM as MOCK_UMKM, LIST_BERITA as MOCK_BERITA, UMKM, Berita } from '@/data/mockData';
 import { supabase } from '@/lib/supabase';
-import { 
-  ShieldCheck, 
-  Plus, 
-  MapPin, 
-  Newspaper, 
-  Users, 
-  LogOut, 
-  Trash2, 
-  Edit3, 
-  CheckCircle, 
-  Store, 
+import {
+  ShieldCheck,
+  Plus,
+  MapPin,
+  Newspaper,
+  Users,
+  LogOut,
+  Trash2,
+  Edit3,
+  CheckCircle,
+  Store,
   Database,
   Image as ImageIcon,
   Loader2,
@@ -29,16 +29,18 @@ import {
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<'umkm' | 'berita'>('umkm');
-  
+
   // Data States
   const [umkmList, setUmkmList] = useState<UMKM[]>([]);
   const [beritaList, setBeritaList] = useState<Berita[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
-  
+
   // Modals & UI States
   const [showAddModal, setShowAddModal] = useState(false);
   const [showAddBeritaModal, setShowAddBeritaModal] = useState(false);
+  const [editingUmkmId, setEditingUmkmId] = useState<string | null>(null);
+  const [editingBeritaId, setEditingBeritaId] = useState<string | null>(null);
   const [notification, setNotification] = useState('');
   const [notificationType, setNotificationType] = useState<'success' | 'error'>('success');
   const [isSaving, setIsSaving] = useState(false);
@@ -60,7 +62,7 @@ export default function AdminDashboardPage() {
 
   // New Berita Form state
   const [judulBerita, setJudulBerita] = useState('');
-  const [kategoriBerita, setKategoriBerita] = useState<'Pembangunan' | 'Kegiatan' | 'Pengumuman' | 'APBDes'>('Kegiatan');
+  const [kategoriBerita, setKategoriBerita] = useState<'Pembangunan' | 'Kegiatan' | 'Pengumuman'>('Kegiatan');
   const [penulisBerita, setPenulisBerita] = useState('Sekretaris Desa');
   const [ringkasanBerita, setRingkasanBerita] = useState('');
   const [kontenBerita, setKontenBerita] = useState('');
@@ -107,7 +109,7 @@ export default function AdminDashboardPage() {
           deskripsi: row.deskripsi,
           jamOperasional: row.jam_operasional ?? '08.00 - 17.00 WITA',
           produkUnggulan: row.produk_unggulan ?? [],
-          rating: row.rating,
+          rating: row.rating ?? 5.0,
         }));
         setUmkmList(mapped);
       } else {
@@ -230,21 +232,30 @@ export default function AdminDashboardPage() {
         foto: fotoUrl,
         deskripsi: deskripsi || 'Deskripsi produk usaha warga Desa Bonto Jaya.',
         jam_operasional: '08.00 - 17.00 WITA',
-        produk_unggulan: ['Produk Utama'],
-        rating: 5.0,
       };
 
       if (isConnected) {
-        const { error } = await supabase.from('umkm').insert(newEntry);
-        if (error) throw error;
+        if (editingUmkmId) {
+          const { error } = await supabase.from('umkm').update(newEntry).eq('id', editingUmkmId);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase.from('umkm').insert(newEntry);
+          if (error) throw error;
+        }
         await fetchAllData();
       } else {
-        setUmkmList([{ id: `umkm-${Date.now()}`, ...newEntry, kontakWA: newEntry.kontak_wa, jamOperasional: newEntry.jam_operasional, produkUnggulan: newEntry.produk_unggulan }, ...umkmList]);
+        if (editingUmkmId) {
+          setUmkmList(umkmList.map(u => u.id === editingUmkmId ? { ...u, ...newEntry, kontakWA: newEntry.kontak_wa, jamOperasional: newEntry.jam_operasional, produkUnggulan: newEntry.produk_unggulan } : u));
+        } else {
+          setUmkmList([{ id: `umkm-${Date.now()}`, ...newEntry, kontakWA: newEntry.kontak_wa, jamOperasional: newEntry.jam_operasional, produkUnggulan: newEntry.produk_unggulan }, ...umkmList]);
+        }
       }
 
+      const wasEditing = !!editingUmkmId;
+      const savedNama = nama;
       setShowAddModal(false);
-      showNotification(`Berhasil menambah UMKM "${nama}"!`);
       resetUMKMForm();
+      showNotification(`Berhasil ${wasEditing ? 'memperbarui' : 'menambah'} UMKM "${savedNama}"!`);
     } catch (err: any) {
       showNotification(`Gagal menyimpan UMKM: ${err.message}`, 'error');
     } finally {
@@ -280,16 +291,27 @@ export default function AdminDashboardPage() {
       };
 
       if (isConnected) {
-        const { error } = await supabase.from('berita').insert(newBerita);
-        if (error) throw error;
+        if (editingBeritaId) {
+          const { error } = await supabase.from('berita').update(newBerita).eq('id', editingBeritaId);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase.from('berita').insert(newBerita);
+          if (error) throw error;
+        }
         await fetchAllData();
       } else {
-        setBeritaList([{ id: `berita-${Date.now()}`, ...newBerita }, ...beritaList]);
+        if (editingBeritaId) {
+          setBeritaList(beritaList.map(b => b.id === editingBeritaId ? { ...b, ...newBerita } : b));
+        } else {
+          setBeritaList([{ id: `berita-${Date.now()}`, ...newBerita }, ...beritaList]);
+        }
       }
 
+      const wasEditingBerita = !!editingBeritaId;
+      const savedJudul = judulBerita;
       setShowAddBeritaModal(false);
-      showNotification(`Berhasil menerbitkan artikel berita "${judulBerita}"!`);
       resetBeritaForm();
+      showNotification(`Berhasil ${wasEditingBerita ? 'memperbarui' : 'menerbitkan'} artikel berita "${savedJudul}"!`);
     } catch (err: any) {
       showNotification(`Gagal menerbitkan berita: ${err.message}`, 'error');
     } finally {
@@ -332,18 +354,47 @@ export default function AdminDashboardPage() {
   function resetUMKMForm() {
     setNama(''); setPemilik(''); setDeskripsi(''); setAlamat(''); setKontakWA(''); setFoto('');
     setFotoFile(null); setFotoPreview(''); setKategori('Kuliner'); setLatitude('-5.5180'); setLongitude('119.9245');
+    setEditingUmkmId(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   }
 
   function resetBeritaForm() {
     setJudulBerita(''); setRingkasanBerita(''); setKontenBerita(''); setGambarBerita('');
     setGambarBeritaFile(null); setGambarBeritaPreview(''); setKategoriBerita('Kegiatan'); setPenulisBerita('Sekretaris Desa');
+    setEditingBeritaId(null);
     if (fileBeritaInputRef.current) fileBeritaInputRef.current.value = '';
   }
 
+  const handleEditUMKMClick = (umkm: UMKM) => {
+    setEditingUmkmId(umkm.id);
+    setNama(umkm.nama);
+    setPemilik(umkm.pemilik);
+    setKategori(umkm.kategori as any);
+    setLatitude(umkm.latitude.toString());
+    setLongitude(umkm.longitude.toString());
+    setAlamat(umkm.alamat);
+    setKontakWA(umkm.kontakWA);
+    setFoto(umkm.foto);
+    setDeskripsi(umkm.deskripsi);
+    setFotoPreview(umkm.foto);
+    setShowAddModal(true);
+  };
+
+  const handleEditBeritaClick = (berita: Berita) => {
+    setEditingBeritaId(berita.id);
+    setJudulBerita(berita.judul);
+    setKategoriBerita(berita.kategori as any);
+    setPenulisBerita(berita.penulis);
+    setRingkasanBerita(berita.ringkasan);
+    setKontenBerita(berita.konten);
+    setGambarBerita(berita.gambar);
+    setGambarBeritaPreview(berita.gambar);
+    setShowAddBeritaModal(true);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-      
+
       {/* Top Banner */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 text-white p-6 sm:p-8 rounded-3xl shadow-lg">
         <div className="flex items-center space-x-4">
@@ -391,15 +442,27 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Toast Notification */}
-      {notification && (
-        <div className={`p-4 rounded-2xl shadow-lg flex items-center gap-3 text-xs font-bold ${
-          notificationType === 'success' ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'
-        }`}>
-          {notificationType === 'success' ? <CheckCircle className="w-5 h-5 text-emerald-200 shrink-0" /> : <AlertTriangle className="w-5 h-5 text-red-200 shrink-0" />}
-          <span>{notification}</span>
-        </div>
-      )}
+      {/* Toast Notification — Fixed bottom-right popup */}
+      <div
+        className={`fixed bottom-6 right-6 z-[100] flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl text-sm font-bold transition-all duration-500 max-w-sm ${notification
+            ? 'translate-y-0 opacity-100'
+            : 'translate-y-8 opacity-0 pointer-events-none'
+          } ${notificationType === 'success'
+            ? 'bg-emerald-600 text-white'
+            : 'bg-red-600 text-white'
+          }`}
+      >
+        {notificationType === 'success'
+          ? <CheckCircle className="w-5 h-5 text-white shrink-0" />
+          : <AlertTriangle className="w-5 h-5 text-white shrink-0" />}
+        <span className="leading-snug">{notification}</span>
+        <button
+          onClick={() => setNotification('')}
+          className="ml-2 text-white/70 hover:text-white text-lg leading-none font-black shrink-0"
+        >
+          ✕
+        </button>
+      </div>
 
       {/* Summary Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -436,27 +499,25 @@ export default function AdminDashboardPage() {
 
       {/* Tab Switcher & Data Table */}
       <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden p-6 space-y-6">
-        
+
         {/* Navigation Tabs */}
         <div className="flex items-center justify-between border-b border-slate-200 pb-3">
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setActiveTab('umkm')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-extrabold transition-all ${
-                activeTab === 'umkm'
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-extrabold transition-all ${activeTab === 'umkm'
                   ? 'bg-emerald-600 text-white shadow-md'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
+                }`}
             >
               <Store className="w-4 h-4" /> Kelola UMKM ({umkmList.length})
             </button>
             <button
               onClick={() => setActiveTab('berita')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-extrabold transition-all ${
-                activeTab === 'berita'
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-extrabold transition-all ${activeTab === 'berita'
                   ? 'bg-blue-600 text-white shadow-md'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
+                }`}
             >
               <Newspaper className="w-4 h-4" /> Kelola Berita Desa ({beritaList.length})
             </button>
@@ -518,6 +579,13 @@ export default function AdminDashboardPage() {
                       <td className="p-3 font-mono text-[11px] text-slate-500">{item.latitude}, {item.longitude}</td>
                       <td className="p-3 text-right">
                         <button
+                          onClick={() => handleEditUMKMClick(item)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors mr-1"
+                          title="Edit Data UMKM"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button
                           onClick={() => handleDeleteUMKM(item.id, item.nama)}
                           className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                           title="Hapus Titik UMKM"
@@ -571,6 +639,13 @@ export default function AdminDashboardPage() {
                       </td>
                       <td className="p-3 text-right">
                         <button
+                          onClick={() => handleEditBeritaClick(berita)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors mr-1"
+                          title="Edit Berita"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button
                           onClick={() => handleDeleteBerita(berita.id, berita.judul)}
                           className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                           title="Hapus Berita"
@@ -593,10 +668,10 @@ export default function AdminDashboardPage() {
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-lg font-black text-slate-900">Tambah Titik Koordinat UMKM</h3>
+              <h3 className="text-lg font-black text-slate-900">{editingUmkmId ? 'Edit Data UMKM' : 'Tambah Titik Koordinat UMKM'}</h3>
               <button onClick={() => { setShowAddModal(false); resetUMKMForm(); }} className="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
             </div>
-            
+
             <form onSubmit={handleAddUMKM} className="space-y-4 text-xs font-semibold">
               <div>
                 <label className="block text-slate-700 mb-1">Nama Usaha UMKM</label>
@@ -629,6 +704,10 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
               <div>
+                <label className="block text-slate-700 mb-1">Alamat Lengkap / Dusun (Contoh: Dusun Bonto Tinggi RT 02/RW 01)</label>
+                <input type="text" placeholder="Dusun Bonto Tinggi RT 01/RW 01" value={alamat} onChange={(e) => setAlamat(e.target.value)} className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl" />
+              </div>
+              <div>
                 <label className="block text-slate-700 mb-1">Nomor WhatsApp (Format: 628xxxx)</label>
                 <input type="text" placeholder="6281234567890" value={kontakWA} onChange={(e) => setKontakWA(e.target.value)} className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl" />
               </div>
@@ -656,7 +735,7 @@ export default function AdminDashboardPage() {
               <div className="pt-2 flex items-center justify-end space-x-3">
                 <button type="button" onClick={() => { setShowAddModal(false); resetUMKMForm(); }} className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold">Batal</button>
                 <button type="submit" disabled={isSaving} className="px-5 py-2.5 bg-emerald-600 text-white font-bold rounded-xl shadow-md hover:bg-emerald-700 flex items-center gap-2">
-                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Database className="w-4 h-4" />} Simpan ke Supabase
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Database className="w-4 h-4" />} {editingUmkmId ? 'Perbarui Data' : 'Simpan ke Supabase'}
                 </button>
               </div>
             </form>
@@ -669,10 +748,10 @@ export default function AdminDashboardPage() {
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-lg font-black text-slate-900">Tambah Artikel Berita Desa</h3>
+              <h3 className="text-lg font-black text-slate-900">{editingBeritaId ? 'Edit Artikel Berita' : 'Tambah Artikel Berita Desa'}</h3>
               <button onClick={() => { setShowAddBeritaModal(false); resetBeritaForm(); }} className="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
             </div>
-            
+
             <form onSubmit={handleAddBerita} className="space-y-4 text-xs font-semibold">
               <div>
                 <label className="block text-slate-700 mb-1">Judul Artikel Berita</label>
@@ -686,7 +765,7 @@ export default function AdminDashboardPage() {
                     <option value="Kegiatan">Kegiatan</option>
                     <option value="Pembangunan">Pembangunan</option>
                     <option value="Pengumuman">Pengumuman</option>
-                    <option value="APBDes">APBDes</option>
+
                   </select>
                 </div>
                 <div>
@@ -727,7 +806,7 @@ export default function AdminDashboardPage() {
               <div className="pt-2 flex items-center justify-end space-x-3">
                 <button type="button" onClick={() => { setShowAddBeritaModal(false); resetBeritaForm(); }} className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold">Batal</button>
                 <button type="submit" disabled={isSaving} className="px-5 py-2.5 bg-blue-600 text-white font-bold rounded-xl shadow-md hover:bg-blue-700 flex items-center gap-2">
-                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Newspaper className="w-4 h-4" />} Terbitkan Berita
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Newspaper className="w-4 h-4" />} {editingBeritaId ? 'Perbarui Berita' : 'Terbitkan Berita'}
                 </button>
               </div>
             </form>

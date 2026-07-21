@@ -59,7 +59,7 @@ export const DATA_DESA = {
   email: "pemerintah@bontojaya.desa.id",
   telepon: "0812-4567-8901",
   jamPelayanan: "Senin - Jumat | 08.00 - 15.30 WITA",
-  pusatKoordinat: [-5.518, 119.925] as [number, number], // Koordinat sekitar Bantaeng/Sulsel
+  pusatKoordinat: [-5.5458585, 119.863438] as [number, number], // Koordinat sekitar Bantaeng/Sulsel
 };
 
 export const LIST_UMKM: UMKM[] = [];

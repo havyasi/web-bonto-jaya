@@ -64,7 +64,7 @@ export default function Footer() {
                 <Link href="/peta-umkm" className="hover:text-emerald-400 transition-colors">Peta GIS & Direktori UMKM</Link>
               </li>
               <li>
-                <Link href="/berita" className="hover:text-emerald-400 transition-colors">Transparansi Dana APBDes</Link>
+                <Link href="/berita" className="hover:text-emerald-400 transition-colors">Berita & Kabar Desa</Link>
               </li>
               <li>
                 <Link href="/admin/login" className="hover:text-emerald-400 transition-colors">Portal Login Admin Desa</Link>

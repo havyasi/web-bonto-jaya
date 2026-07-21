@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import PetaLeafletWrapper from '@/components/PetaLeafletWrapper';
-import { DATA_DESA, LIST_UMKM as MOCK_UMKM, LIST_BERITA, UMKM } from '@/data/mockData';
+import { DATA_DESA, LIST_UMKM as MOCK_UMKM, LIST_BERITA as MOCK_BERITA, UMKM, Berita } from '@/data/mockData';
 import { supabase } from '@/lib/supabase';
 import { 
   MapPin, 
