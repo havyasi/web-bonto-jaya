@@ -78,6 +78,7 @@ export default function BeritaPage() {
               <article
                 key={berita.id}
                 className="bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
+                style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
               >
                 <div>
                   <div className="relative h-48 bg-slate-100">
@@ -95,11 +96,11 @@ export default function BeritaPage() {
                       <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {berita.tanggal}</span>
                       <span className="flex items-center gap-1"><User className="w-3.5 h-3.5" /> {berita.penulis}</span>
                     </div>
-                    <h3 className="text-lg font-extrabold text-slate-900 leading-snug">
+                    <h3 className="text-lg font-extrabold text-slate-900 leading-snug" style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
                       {berita.judul}
                     </h3>
-                    <p className="text-xs text-slate-600 leading-relaxed">
-                      {berita.konten}
+                    <p className="text-xs text-slate-600 leading-relaxed" style={{ overflowWrap: 'anywhere', wordBreak: 'break-word', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' as any, overflow: 'hidden' }}>
+                      {berita.ringkasan || berita.konten}
                     </p>
                   </div>
                 </div>
