@@ -56,13 +56,13 @@ export default function AdminLoginPage() {
         )}
 
         {/* Demo Hint Box */}
-        <div className="bg-emerald-50 border border-emerald-200/80 p-3.5 rounded-xl text-xs text-emerald-800 space-y-1">
+        {/* <div className="bg-emerald-50 border border-emerald-200/80 p-3.5 rounded-xl text-xs text-emerald-800 space-y-1">
           <p className="font-extrabold flex items-center gap-1.5">
             🔑 Akses Demo Admin CMS:
           </p>
           <p>Email: <code className="bg-emerald-100 px-1.5 py-0.5 rounded font-mono">admin@bontojaya.desa.id</code></p>
           <p>Password: <code className="bg-emerald-100 px-1.5 py-0.5 rounded font-mono">admin123</code></p>
-        </div>
+        </div> */}
 
         {/* Form Login */}
         <form onSubmit={handleLogin} className="space-y-4">
