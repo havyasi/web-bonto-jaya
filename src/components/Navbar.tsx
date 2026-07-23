@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { DATA_DESA } from '@/data/mockData';
-import { MapPin, Menu, X, Building2, Newspaper, Home, UserCheck, ShieldCheck } from 'lucide-react';
+import { MapPin, Menu, X, Building2, Newspaper, Home, UserCheck, ShieldCheck, Mountain } from 'lucide-react';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -31,15 +31,15 @@ export default function Navbar() {
           
           {/* Logo & Identity */}
           <Link href="/" className="flex items-center space-x-3 group">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-700 via-emerald-600 to-teal-500 text-white flex items-center justify-center font-bold shadow-md group-hover:scale-105 transition-transform">
+            {/* <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-700 via-emerald-600 to-teal-500 text-white flex items-center justify-center font-bold shadow-md group-hover:scale-105 transition-transform">
               <Building2 className="w-7 h-7" />
-            </div>
+            </div> */}
             <div>
               <span className="block text-xl font-extrabold text-slate-900 tracking-tight leading-none group-hover:text-emerald-700 transition-colors">
                 {DATA_DESA.nama}
               </span>
               <span className="text-xs font-medium text-slate-500 flex items-center gap-1 mt-1">
-                <MapPin className="w-3 h-3 text-emerald-600" /> Kec. {DATA_DESA.kecamatan}, {DATA_DESA.kabupaten}
+                <MapPin className="w-3 h-3 text-emerald-600" /> Kec. {DATA_DESA.kecamatan}, Kab. {DATA_DESA.kabupaten}
               </span>
             </div>
           </Link>

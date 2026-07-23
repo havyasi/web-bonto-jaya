@@ -136,24 +136,22 @@ export default function PetaLeaflet({ dataUMKM, onSelectUMKM }: Props) {
         </div>
       </div>
 
-      {/* Map Type / Layer Switcher Selector (Floating Top-Right below control bar) */}
-      <div className="absolute top-20 sm:top-20 right-4 z-20 bg-white/95 backdrop-blur-md p-1.5 rounded-xl shadow-xl border border-slate-200/80 flex items-center gap-1">
-        <span className="text-[11px] font-bold text-slate-500 px-2 flex items-center gap-1 hidden xs:flex">
-          <Layers className="w-3.5 h-3.5 text-emerald-600" /> Mode Peta:
-        </span>
-        {(Object.keys(TILE_PROVIDERS) as Array<keyof typeof TILE_PROVIDERS>).map((key) => (
-          <button
-            key={key}
-            onClick={() => setMapType(key)}
-            className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-              mapType === key
-                ? 'bg-slate-900 text-white shadow-xs'
-                : 'text-slate-600 hover:bg-slate-100'
-            }`}
+      {/* Map Type / Layer Switcher Dropdown */}
+      <div className="absolute bottom-4 right-4 z-20">
+        <div className="bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-slate-200/80 flex items-center gap-2 px-3 py-2">
+          <Layers className="w-4 h-4 text-emerald-600 shrink-0" />
+          <select
+            value={mapType}
+            onChange={(e) => setMapType(e.target.value as keyof typeof TILE_PROVIDERS)}
+            className="bg-transparent text-xs font-bold text-slate-800 focus:outline-none cursor-pointer pr-1"
           >
-            {TILE_PROVIDERS[key].label}
-          </button>
-        ))}
+            {(Object.keys(TILE_PROVIDERS) as Array<keyof typeof TILE_PROVIDERS>).map((key) => (
+              <option key={key} value={key}>
+                {TILE_PROVIDERS[key].label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Leaflet Map Canvas */}

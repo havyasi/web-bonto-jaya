@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { LIST_UMKM as MOCK_UMKM, LIST_BERITA as MOCK_BERITA, UMKM, Berita } from '@/data/mockData';
+import { LIST_UMKM as MOCK_UMKM, LIST_BERITA as MOCK_BERITA, UMKM, Berita, LayananSurat } from '@/data/mockData';
 import { supabase } from '@/lib/supabase';
 import {
   ShieldCheck,
@@ -24,15 +24,18 @@ import {
   WifiOff,
   Calendar,
   User,
-  FileText
+  FileText,
+  X,
+  ClipboardList
 } from 'lucide-react';
 
 export default function AdminDashboardPage() {
-  const [activeTab, setActiveTab] = useState<'umkm' | 'berita'>('umkm');
+  const [activeTab, setActiveTab] = useState<'umkm' | 'berita' | 'layanan'>('umkm');
 
   // Data States
   const [umkmList, setUmkmList] = useState<UMKM[]>([]);
   const [beritaList, setBeritaList] = useState<Berita[]>([]);
+  const [layananList, setLayananList] = useState<LayananSurat[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
 
@@ -41,6 +44,8 @@ export default function AdminDashboardPage() {
   const [showAddBeritaModal, setShowAddBeritaModal] = useState(false);
   const [editingUmkmId, setEditingUmkmId] = useState<string | null>(null);
   const [editingBeritaId, setEditingBeritaId] = useState<string | null>(null);
+  const [editingLayananId, setEditingLayananId] = useState<string | null>(null);
+  const [showAddLayananModal, setShowAddLayananModal] = useState(false);
   const [notification, setNotification] = useState('');
   const [notificationType, setNotificationType] = useState<'success' | 'error'>('success');
   const [isSaving, setIsSaving] = useState(false);
@@ -71,6 +76,10 @@ export default function AdminDashboardPage() {
   const [gambarBeritaPreview, setGambarBeritaPreview] = useState<string>('');
   const fileBeritaInputRef = useRef<HTMLInputElement>(null);
 
+  // Layanan Surat Form state
+  const [namaLayanan, setNamaLayanan] = useState('');
+  const [persyaratanLayanan, setPersyaratanLayanan] = useState<string[]>(['']);
+
   // Fetch initial data from Supabase
   useEffect(() => {
     fetchAllData();
@@ -91,9 +100,15 @@ export default function AdminDashboardPage() {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (umkmError || beritaError) {
-        console.error('Supabase fetch error:', umkmError || beritaError);
-        throw umkmError || beritaError;
+      // Fetch Layanan Surat
+      const { data: layananData, error: layananError } = await supabase
+        .from('layanan_surat')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (umkmError || beritaError || layananError) {
+        console.error('Supabase fetch error:', umkmError || beritaError || layananError);
+        throw umkmError || beritaError || layananError;
       }
 
       setIsConnected(true);
@@ -134,6 +149,16 @@ export default function AdminDashboardPage() {
         setBeritaList(mappedBerita);
       } else {
         setBeritaList(MOCK_BERITA);
+      }
+
+      if (layananData && layananData.length > 0) {
+        const mappedLayanan: LayananSurat[] = layananData.map((row: any) => ({
+          id: row.id,
+          nama_surat: row.nama_surat,
+          persyaratan: row.persyaratan ?? [],
+          created_at: row.created_at,
+        }));
+        setLayananList(mappedLayanan);
       }
 
     } catch (err) {
@@ -397,6 +422,96 @@ export default function AdminDashboardPage() {
     setShowAddBeritaModal(true);
   };
 
+  // --- LAYANAN SURAT CRUD ---
+  function resetLayananForm() {
+    setNamaLayanan('');
+    setPersyaratanLayanan(['']);
+    setEditingLayananId(null);
+  }
+
+  const handleEditLayananClick = (item: LayananSurat) => {
+    setEditingLayananId(item.id);
+    setNamaLayanan(item.nama_surat);
+    setPersyaratanLayanan(item.persyaratan.length > 0 ? [...item.persyaratan] : ['']);
+    setShowAddLayananModal(true);
+  };
+
+  const handleAddLayanan = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+
+    try {
+      const cleanPersyaratan = persyaratanLayanan.filter(p => p.trim() !== '');
+      if (cleanPersyaratan.length === 0) {
+        showNotification('Minimal 1 persyaratan harus diisi.', 'error');
+        setIsSaving(false);
+        return;
+      }
+
+      const newEntry = {
+        nama_surat: namaLayanan,
+        persyaratan: cleanPersyaratan,
+      };
+
+      if (isConnected) {
+        if (editingLayananId) {
+          const { error } = await supabase.from('layanan_surat').update(newEntry).eq('id', editingLayananId);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase.from('layanan_surat').insert(newEntry);
+          if (error) throw error;
+        }
+        await fetchAllData();
+      } else {
+        if (editingLayananId) {
+          setLayananList(layananList.map(l => l.id === editingLayananId ? { ...l, ...newEntry } : l));
+        } else {
+          setLayananList([{ id: `layanan-${Date.now()}`, ...newEntry }, ...layananList]);
+        }
+      }
+
+      const wasEditing = !!editingLayananId;
+      const savedNama = namaLayanan;
+      setShowAddLayananModal(false);
+      resetLayananForm();
+      showNotification(`Berhasil ${wasEditing ? 'memperbarui' : 'menambah'} layanan "${savedNama}"!`);
+    } catch (err: any) {
+      showNotification(`Gagal menyimpan layanan: ${err.message}`, 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteLayanan = async (id: string, nama: string) => {
+    if (!confirm(`Apakah Anda yakin ingin menghapus layanan "${nama}"?`)) return;
+
+    try {
+      if (isConnected) {
+        const { error } = await supabase.from('layanan_surat').delete().eq('id', id);
+        if (error) throw error;
+      }
+      setLayananList(layananList.filter(l => l.id !== id));
+      showNotification(`Layanan "${nama}" berhasil dihapus.`);
+    } catch (err: any) {
+      showNotification(`Gagal menghapus: ${err.message}`, 'error');
+    }
+  };
+
+  const addPersyaratanField = () => {
+    setPersyaratanLayanan([...persyaratanLayanan, '']);
+  };
+
+  const removePersyaratanField = (index: number) => {
+    if (persyaratanLayanan.length <= 1) return;
+    setPersyaratanLayanan(persyaratanLayanan.filter((_, i) => i !== index));
+  };
+
+  const updatePersyaratan = (index: number, value: string) => {
+    const updated = [...persyaratanLayanan];
+    updated[index] = value;
+    setPersyaratanLayanan(updated);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
 
@@ -426,14 +541,20 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition-all active:scale-95"
-          >
-            <Plus className="w-4 h-4" /> Tambah UMKM
-          </button>
-          <button
-            onClick={() => setShowAddBeritaModal(true)}
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition-all active:scale-95"
+            >
+              <Plus className="w-4 h-4" /> Tambah UMKM
+            </button>
+            <button
+              onClick={() => setShowAddLayananModal(true)}
+              className="flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition-all active:scale-95"
+            >
+              <Plus className="w-4 h-4" /> Tambah Layanan Surat
+            </button>
+            <button
+              onClick={() => setShowAddBeritaModal(true)}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition-all active:scale-95"
           >
             <Plus className="w-4 h-4" /> Tambah Berita Baru
@@ -470,7 +591,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Summary Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center space-x-4">
           <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center shrink-0">
             <MapPin className="w-6 h-6" />
@@ -492,12 +613,22 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center space-x-4">
+          <div className="w-12 h-12 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center shrink-0">
+            <ClipboardList className="w-6 h-6" />
+          </div>
+          <div>
+            <span className="text-xs text-slate-500 font-semibold block">Layanan Persuratan</span>
+            <span className="text-2xl font-black text-slate-900">{isLoading ? '...' : `${layananList.length} Jenis`}</span>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center space-x-4">
           <div className="w-12 h-12 bg-purple-100 text-purple-700 rounded-xl flex items-center justify-center shrink-0">
             <Database className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs text-slate-500 font-semibold block">Status Database Supabase</span>
-            <span className="text-2xl font-black text-slate-900">{isConnected ? 'Aktif & Terhubung' : 'Mode Offline'}</span>
+            <span className="text-xs text-slate-500 font-semibold block">Status Database</span>
+            <span className="text-2xl font-black text-slate-900">{isConnected ? 'Terhubung' : 'Offline'}</span>
           </div>
         </div>
       </div>
@@ -524,24 +655,42 @@ export default function AdminDashboardPage() {
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
             >
-              <Newspaper className="w-4 h-4" /> Kelola Berita Desa ({beritaList.length})
+              <Newspaper className="w-4 h-4" /> Kelola Berita ({beritaList.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('layanan')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-extrabold transition-all ${activeTab === 'layanan'
+                  ? 'bg-amber-600 text-white shadow-md'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+            >
+              <ClipboardList className="w-4 h-4" /> Layanan Surat ({layananList.length})
             </button>
           </div>
 
           <div>
-            {activeTab === 'umkm' ? (
+            {activeTab === 'umkm' && (
               <button
                 onClick={() => setShowAddModal(true)}
                 className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-700"
               >
                 <Plus className="w-4 h-4" /> Tambah UMKM
               </button>
-            ) : (
+            )}
+            {activeTab === 'berita' && (
               <button
                 onClick={() => setShowAddBeritaModal(true)}
                 className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700"
               >
                 <Plus className="w-4 h-4" /> Tambah Berita Baru
+              </button>
+            )}
+            {activeTab === 'layanan' && (
+              <button
+                onClick={() => setShowAddLayananModal(true)}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 hover:text-amber-700"
+              >
+                <Plus className="w-4 h-4" /> Tambah Layanan Surat
               </button>
             )}
           </div>
@@ -654,6 +803,66 @@ export default function AdminDashboardPage() {
                           onClick={() => handleDeleteBerita(berita.id, berita.judul)}
                           className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                           title="Hapus Berita"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* TAB 3: KELOLA LAYANAN SURAT */}
+        {activeTab === 'layanan' && (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+                  <th className="p-3">Nama Jenis Surat</th>
+                  <th className="p-3">Persyaratan</th>
+                  <th className="p-3 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                {layananList.length === 0 ? (
+                  <tr>
+                    <td colSpan={3} className="p-8 text-center text-slate-400">Belum ada data layanan persuratan.</td>
+                  </tr>
+                ) : (
+                  layananList.map((item) => (
+                    <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="p-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 bg-amber-100 text-amber-700 rounded-lg flex items-center justify-center shrink-0">
+                            <FileText className="w-4 h-4" />
+                          </div>
+                          <span className="font-extrabold text-slate-900">{item.nama_surat}</span>
+                        </div>
+                      </td>
+                      <td className="p-3">
+                        <ul className="space-y-0.5">
+                          {item.persyaratan.map((p, idx) => (
+                            <li key={idx} className="flex items-center gap-1.5 text-[11px] text-slate-600">
+                              <CheckCircle className="w-3 h-3 text-emerald-500 shrink-0" /> {p}
+                            </li>
+                          ))}
+                        </ul>
+                      </td>
+                      <td className="p-3 text-right">
+                        <button
+                          onClick={() => handleEditLayananClick(item)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors mr-1"
+                          title="Edit Layanan"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteLayanan(item.id, item.nama_surat)}
+                          className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                          title="Hapus Layanan"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -812,6 +1021,66 @@ export default function AdminDashboardPage() {
                 <button type="button" onClick={() => { setShowAddBeritaModal(false); resetBeritaForm(); }} className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold">Batal</button>
                 <button type="submit" disabled={isSaving} className="px-5 py-2.5 bg-blue-600 text-white font-bold rounded-xl shadow-md hover:bg-blue-700 flex items-center gap-2">
                   {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Newspaper className="w-4 h-4" />} {editingBeritaId ? 'Perbarui Berita' : 'Terbitkan Berita'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: TAMBAH/EDIT LAYANAN SURAT */}
+      {showAddLayananModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="text-lg font-black text-slate-900">{editingLayananId ? 'Edit Layanan Surat' : 'Tambah Layanan Surat Baru'}</h3>
+              <button onClick={() => { setShowAddLayananModal(false); resetLayananForm(); }} className="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
+            </div>
+
+            <form onSubmit={handleAddLayanan} className="space-y-4 text-xs font-semibold">
+              <div>
+                <label className="block text-slate-700 mb-1">Nama Jenis Surat</label>
+                <input type="text" required placeholder="Contoh: Surat Keterangan Usaha (SKU)" value={namaLayanan} onChange={(e) => setNamaLayanan(e.target.value)} className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl" />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-slate-700 mb-1">Daftar Persyaratan</label>
+                {persyaratanLayanan.map((item, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <span className="text-slate-400 text-[11px] w-5 text-center shrink-0">{index + 1}.</span>
+                    <input
+                      type="text"
+                      required
+                      placeholder={`Persyaratan ke-${index + 1}`}
+                      value={item}
+                      onChange={(e) => updatePersyaratan(index, e.target.value)}
+                      className="flex-1 p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
+                    />
+                    {persyaratanLayanan.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removePersyaratanField(index)}
+                        className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors shrink-0"
+                        title="Hapus persyaratan ini"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={addPersyaratanField}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 hover:text-amber-700 mt-1"
+                >
+                  <Plus className="w-4 h-4" /> Tambah Persyaratan Lain
+                </button>
+              </div>
+
+              <div className="pt-2 flex items-center justify-end space-x-3">
+                <button type="button" onClick={() => { setShowAddLayananModal(false); resetLayananForm(); }} className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold">Batal</button>
+                <button type="submit" disabled={isSaving} className="px-5 py-2.5 bg-amber-600 text-white font-bold rounded-xl shadow-md hover:bg-amber-700 flex items-center gap-2">
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <ClipboardList className="w-4 h-4" />} {editingLayananId ? 'Perbarui Layanan' : 'Simpan Layanan'}
                 </button>
               </div>
             </form>

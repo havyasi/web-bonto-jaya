@@ -19,7 +19,7 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-sm text-slate-400 leading-relaxed">
-              Portal resmi pemerintahan dan layanan digital pemetaan UMKM Desa Bonto Jaya. Mendorong transparansi dan kemajuan ekonomi lokal.
+              Portal pemerintahan dan layanan digital pemetaan Potensi Kelurahan Bonto Jaya. Mendorong transparansi dan kemajuan ekonomi lokal.
             </p>
           </div>
 
@@ -101,7 +101,7 @@ export default function Footer() {
         <div className="mt-12 pt-6 border-t border-slate-800 text-xs text-slate-500 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
           <p>© {new Date().getFullYear()} {DATA_DESA.nama}. Hak Cipta Dilindungi Undang-Undang.</p>
           <p className="flex items-center justify-center gap-1">
-            Dirancang & Disusun Oleh <span className="text-emerald-400 font-semibold">Ananta Waskita Gisda</span>
+            Dirancang & Disusun Oleh <span className="text-emerald-400 font-semibold">KKN 116 UNHAS</span>
           </p>
         </div>
       </div>

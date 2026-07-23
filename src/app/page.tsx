@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import PetaLeafletWrapper from '@/components/PetaLeafletWrapper';
-import { DATA_DESA, LIST_UMKM as MOCK_UMKM, LIST_BERITA as MOCK_BERITA, UMKM, Berita } from '@/data/mockData';
+import { DATA_DESA, LIST_UMKM as MOCK_UMKM, LIST_BERITA as MOCK_BERITA, UMKM, Berita, LayananSurat } from '@/data/mockData';
 import { supabase } from '@/lib/supabase';
 import { 
   MapPin, 
@@ -23,14 +23,16 @@ import {
 export default function HomePage() {
   const [umkmList, setUmkmList] = useState<UMKM[]>(MOCK_UMKM);
   const [beritaList, setBeritaList] = useState<Berita[]>(MOCK_BERITA);
+  const [layananList, setLayananList] = useState<LayananSurat[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [umkmRes, beritaRes] = await Promise.all([
+        const [umkmRes, beritaRes, layananRes] = await Promise.all([
           supabase.from('umkm').select('*').order('created_at', { ascending: false }),
-          supabase.from('berita').select('*').order('created_at', { ascending: false })
+          supabase.from('berita').select('*').order('created_at', { ascending: false }),
+          supabase.from('layanan_surat').select('*').order('created_at', { ascending: false })
         ]);
 
         if (umkmRes.data) {
@@ -65,6 +67,16 @@ export default function HomePage() {
             gambar: row.gambar,
           }));
           setBeritaList(mappedB);
+        }
+
+        if (layananRes.data && layananRes.data.length > 0) {
+          const mappedL: LayananSurat[] = layananRes.data.map((row: any) => ({
+            id: row.id,
+            nama_surat: row.nama_surat,
+            persyaratan: row.persyaratan ?? [],
+            created_at: row.created_at,
+          }));
+          setLayananList(mappedL);
         }
       } catch (err) {
         console.warn('Gagal mengambil data dari Supabase:', err);
@@ -106,7 +118,7 @@ export default function HomePage() {
             </h1>
 
             <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-normal">
-              Solusi terpadu transparansi pelayanan publik dan etalase promosi spasial bagi UMKM & potensi lokal Desa Bonto Jaya, Kec. {DATA_DESA.kecamatan}, Kab. {DATA_DESA.kabupaten}.
+              Solusi terpadu transparansi pelayanan publik dan etalase promosi spasial bagi UMKM & potensi lokal Kelurahan Bonto Jaya, Kec. {DATA_DESA.kecamatan}, Kab. {DATA_DESA.kabupaten}.
             </p>
 
             <div className="pt-2 flex flex-wrap gap-4">
@@ -115,14 +127,14 @@ export default function HomePage() {
                 className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3.5 rounded-xl transition-all shadow-lg shadow-emerald-950/50 hover:scale-105 active:scale-95"
               >
                 <MapPin className="w-5 h-5" />
-                Jelajahi Peta UMKM
+                Jelajahi Peta
               </Link>
               <Link
                 href="/profil"
                 className="inline-flex items-center gap-2 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-white font-semibold px-6 py-3.5 rounded-xl backdrop-blur-md transition-all hover:scale-105 active:scale-95"
               >
                 <Building className="w-5 h-5 text-slate-400" />
-                Profil & Perangkat Desa
+                Profil Kelurahan Bonto Jaya
               </Link>
             </div>
 
@@ -265,60 +277,36 @@ export default function HomePage() {
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">Layanan Publik</span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Persyaratan Administrasi Persuratan</h2>
-            <p className="text-sm text-slate-600">Panduan syarat dokumen resmi pelayanan kantor balai Desa Bonto Jaya.</p>
+            <p className="text-sm text-slate-600">Panduan syarat dokumen resmi pelayanan kantor Kelurahan Bonto Jaya.</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-3 hover:border-emerald-300 transition-colors">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
-                <FileText className="w-5 h-5" />
-              </div>
-              <h3 className="font-extrabold text-slate-900 text-base">Surat Keterangan Usaha (SKU)</h3>
-              <ul className="text-xs text-slate-600 space-y-1.5 pt-1">
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Pengantar RT / RW</li>
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> FC KTP & Kartu Keluarga</li>
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Foto tempat lokasi usaha</li>
-              </ul>
+          {layananList.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-3xl border border-slate-200/80 p-8 space-y-3">
+              <FileText className="w-12 h-12 text-slate-300 mx-auto" />
+              <h3 className="text-base font-bold text-slate-700">Belum Ada Data Layanan Persuratan</h3>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                Informasi persyaratan layanan surat akan muncul di sini setelah ditambahkan melalui Admin Dashboard.
+              </p>
             </div>
-
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-3 hover:border-emerald-300 transition-colors">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
-                <FileText className="w-5 h-5" />
-              </div>
-              <h3 className="font-extrabold text-slate-900 text-base">Surat Keterangan Domisili</h3>
-              <ul className="text-xs text-slate-600 space-y-1.5 pt-1">
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Pengantar RT / RW</li>
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> FC KTP & Kartu Keluarga</li>
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Pasfoto 3x4 (2 Lembar)</li>
-              </ul>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {layananList.map((item) => (
+                <div key={item.id} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-3 hover:border-emerald-300 transition-colors">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-extrabold text-slate-900 text-base">{item.nama_surat}</h3>
+                  <ul className="text-xs text-slate-600 space-y-1.5 pt-1">
+                    {item.persyaratan.map((p, idx) => (
+                      <li key={idx} className="flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" /> {p}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
-
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-3 hover:border-emerald-300 transition-colors">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
-                <FileText className="w-5 h-5" />
-              </div>
-              <h3 className="font-extrabold text-slate-900 text-base">Surat Pengantar SKCK</h3>
-              <ul className="text-xs text-slate-600 space-y-1.5 pt-1">
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Surat Pengantar RT / RW</li>
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> FC KTP & Kartu Keluarga</li>
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> FC Akta Kelahiran</li>
-              </ul>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-3 hover:border-emerald-300 transition-colors">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
-                <FileText className="w-5 h-5" />
-              </div>
-              <h3 className="font-extrabold text-slate-900 text-base">Surat Keterangan Tidak Mampu</h3>
-              <ul className="text-xs text-slate-600 space-y-1.5 pt-1">
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Pengantar RT / RW</li>
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> FC KTP & Kartu Keluarga</li>
-                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Surat Pernyataan Bermaterai</li>
-              </ul>
-            </div>
-
-          </div>
+          )}
 
         </div>
       </section>

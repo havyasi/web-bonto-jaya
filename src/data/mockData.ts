@@ -43,8 +43,15 @@ export interface APBDesData {
   rincianBelanja: { bidang: string; jumlah: number }[];
 }
 
+export interface LayananSurat {
+  id: string;
+  nama_surat: string;
+  persyaratan: string[];
+  created_at?: string;
+}
+
 export const DATA_DESA = {
-  nama: "Desa Bonto Jaya",
+  nama: "Kelurahan Bonto Jaya",
   tagline: "Desa Digital, Mandiri, dan Berdaya Saing",
   kecamatan: "Bissappu",
   kabupaten: "Bantaeng",
@@ -65,27 +72,6 @@ export const DATA_DESA = {
 export const LIST_UMKM: UMKM[] = [];
 
 export const LIST_BERITA: Berita[] = [];
-
-
-export const APBDES_DATA: APBDesData = {
-  tahun: 2026,
-  pendapatan: 1450000000,
-  belanja: 1420000000,
-  pembiayaan: 30000000,
-  rincianPendapatan: [
-    { sumber: "Dana Desa (APBN)", jumlah: 820000000 },
-    { sumber: "Alokasi Dana Desa (ADD)", jumlah: 450000000 },
-    { sumber: "Bagi Hasil Pajak & Retribusi", jumlah: 110000000 },
-    { sumber: "Pendapatan Asli Desa (PADes)", jumlah: 70000000 },
-  ],
-  rincianBelanja: [
-    { bidang: "Penyelenggaraan Pemerintahan Desa", jumlah: 480000000 },
-    { bidang: "Pelaksanaan Pembangunan Desa", jumlah: 590000000 },
-    { bidang: "Pembinaan Kemasyarakatan", jumlah: 120000000 },
-    { bidang: "Pemberdayaan Masyarakat & UMKM", jumlah: 180000000 },
-    { bidang: "Penanggulangan Bencana & Darurat", jumlah: 50000000 },
-  ],
-};
 
 export const LIST_PERANGKAT_DESA: PerangkatDesa[] = [
   {

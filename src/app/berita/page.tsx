@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { LIST_BERITA as MOCK_BERITA, Berita } from '@/data/mockData';
 import { supabase } from '@/lib/supabase';
-import { Newspaper, Calendar, User, ArrowRight } from 'lucide-react';
+import { Newspaper, Calendar, User, ArrowRight, Mountain, Map, FileImage } from 'lucide-react';
 
 export default function BeritaPage() {
   const [beritaList, setBeritaList] = useState<Berita[]>(MOCK_BERITA);
@@ -47,15 +47,42 @@ export default function BeritaPage() {
       <div className="bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 rounded-3xl p-8 sm:p-12 text-white shadow-xl relative overflow-hidden">
         <div className="relative z-10 max-w-3xl space-y-4">
           <div className="inline-flex items-center gap-2 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3.5 py-1.5 rounded-full text-xs font-semibold">
-            <Newspaper className="w-4 h-4 text-emerald-400" /> Pusat Informasi & Berita Desa
+            <Newspaper className="w-4 h-4 text-emerald-400" /> Pusat Informasi & Dokumen Kelurahan
           </div>
           <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
-            Kabar & Pengumuman Desa Bonto Jaya
+            Kabar & Publikasi Bonto Jaya
           </h1>
           <p className="text-sm sm:text-base text-slate-300">
-            Publikasi berita kegiatan desa, pengumuman publik, dan informasi terkini warga Desa Bonto Jaya.
+            Publikasi berita kegiatan desa, dokumen spasial kelerengan, pengumuman publik, dan informasi pelayanan warga.
           </p>
         </div>
+      </div>
+
+      {/* BANNER DOKUMEN SPASIAL & PETA KELERENGAN */}
+      <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="flex items-start gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+            <Mountain className="w-7 h-7" />
+          </div>
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 uppercase tracking-wider">
+              <FileImage className="w-3.5 h-3.5" /> Peta Spasial Geospasial
+            </div>
+            <h2 className="text-xl font-extrabold text-slate-900">
+              Peta Kelerengan Wilayah Kelurahan Bonto Jaya
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 max-w-2xl">
+              Lihat dan unduh peta kontur/kelerengan tanah (kemiringan lereng) hasil analisis geospasial untuk perencanaan tata ruang dan mitigasi bencana.
+            </p>
+          </div>
+        </div>
+
+        <Link
+          href="/peta-lereng"
+          className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md transition-all active:scale-95 shrink-0"
+        >
+          <Map className="w-4 h-4" /> Lihat Peta Kelerengan (PNG) <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
       </div>
 
       {/* 2. ARTIKEL BERITA & KEGIATAN DESA */}
