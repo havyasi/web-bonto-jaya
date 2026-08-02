@@ -113,3 +113,46 @@ export const LIST_PERANGKAT_DESA: PerangkatDesa[] = [
     foto: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=400&auto=format&fit=crop",
   }
 ];
+
+export const LIST_LAYANAN: LayananSurat[] = [
+  {
+    id: "l-1",
+    nama_surat: "Surat Keterangan Domisili",
+    persyaratan: ["Pengantar RT / RW", "FC KTP & Kartu Keluarga", "Pasfoto 3x4 (2 Lembar)"],
+  },
+  {
+    id: "l-2",
+    nama_surat: "Surat Pengantar SKCK",
+    persyaratan: ["Surat Pengantar RT / RW", "FC KTP & Kartu Keluarga", "FC Akta Kelahiran / Ijazah"],
+  },
+  {
+    id: "l-3",
+    nama_surat: "Surat Keterangan Tidak Mampu (SKTM)",
+    persyaratan: ["Pengantar RT / RW", "FC KTP & Kartu Keluarga", "Surat Pernyataan Bermaterai"],
+  },
+  {
+    id: "l-4",
+    nama_surat: "Surat Keterangan Usaha (SKU)",
+    persyaratan: ["Pengantar RT / RW", "FC KTP & Kartu Keluarga", "Foto Lokasi Usaha"],
+  },
+  {
+    id: "l-5",
+    nama_surat: "Surat Keterangan Kelahiran",
+    persyaratan: ["Pengantar RT / RW", "FC KTP Orang Tua & KK", "Surat Keterangan Bidan/RS"],
+  },
+  {
+    id: "l-6",
+    nama_surat: "Surat Keterangan Kematian",
+    persyaratan: ["Pengantar RT / RW", "FC KTP & KK Almarhum/ah", "Surat Keterangan Dokter/RS"],
+  },
+  {
+    id: "l-7",
+    nama_surat: "Surat Keterangan Pindah",
+    persyaratan: ["Pengantar RT / RW", "KTP & KK Asli", "Pasfoto 3x4 (4 Lembar)"],
+  },
+  {
+    id: "l-8",
+    nama_surat: "Surat Keterangan Belum Menikah",
+    persyaratan: ["Pengantar RT / RW", "FC KTP & KK Pemohon", "Surat Pernyataan Belum Menikah"],
+  }
+];

@@ -11,9 +11,14 @@ export default function Footer() {
           {/* Col 1: Identity */}
           <div className="space-y-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold">
+              {/* <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold">
                 <Building2 className="w-6 h-6" />
-              </div>
+              </div> */}
+              <img 
+              src="/logo_Bantaeng.png" 
+              alt="Logo Kabupaten Bantaeng"
+              className="w-12 h-12 object-contain group-hover:scale-105 transition-transform" />
+            <div></div>
               <span className="text-xl font-extrabold text-white tracking-tight">
                 {DATA_DESA.nama}
               </span>

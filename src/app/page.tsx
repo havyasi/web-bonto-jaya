@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import PetaLeafletWrapper from '@/components/PetaLeafletWrapper';
-import { DATA_DESA, LIST_UMKM as MOCK_UMKM, LIST_BERITA as MOCK_BERITA, UMKM, Berita, LayananSurat } from '@/data/mockData';
+import { DATA_DESA, LIST_UMKM as MOCK_UMKM, LIST_BERITA as MOCK_BERITA, LIST_LAYANAN as MOCK_LAYANAN, UMKM, Berita, LayananSurat } from '@/data/mockData';
 import { supabase } from '@/lib/supabase';
 import { 
   MapPin, 
@@ -17,14 +17,30 @@ import {
   Phone, 
   Newspaper, 
   CheckCircle2, 
-  ChevronRight 
+  ChevronRight,
+  ChevronLeft,
+  Search,
+  X,
+  Layers
 } from 'lucide-react';
 
 export default function HomePage() {
   const [umkmList, setUmkmList] = useState<UMKM[]>(MOCK_UMKM);
   const [beritaList, setBeritaList] = useState<Berita[]>(MOCK_BERITA);
-  const [layananList, setLayananList] = useState<LayananSurat[]>([]);
+  const [layananList, setLayananList] = useState<LayananSurat[]>(MOCK_LAYANAN);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Carousel & Modal state
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [showAllLayananModal, setShowAllLayananModal] = useState(false);
+  const [searchLayananQuery, setSearchLayananQuery] = useState('');
+
+  const scrollCarousel = (direction: 'left' | 'right') => {
+    if (carouselRef.current) {
+      const scrollAmount = direction === 'left' ? -340 : 340;
+      carouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -89,6 +105,11 @@ export default function HomePage() {
 
   const featuredUMKM = umkmList.slice(0, 3);
   const featuredBerita = beritaList.slice(0, 3);
+
+  const filteredLayananModal = layananList.filter((item) =>
+    item.nama_surat.toLowerCase().includes(searchLayananQuery.toLowerCase()) ||
+    item.persyaratan.some((p) => p.toLowerCase().includes(searchLayananQuery.toLowerCase()))
+  );
 
   return (
     <div className="space-y-16 pb-16">
@@ -270,14 +291,36 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 5. LAYANAN ADMINISTRASI CEPAT */}
+      {/* 5. LAYANAN ADMINISTRASI CEPAT (CAROUSEL & MODAL) */}
       <section className="bg-slate-100/80 py-16 border-y border-slate-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           
-          <div className="text-center max-w-2xl mx-auto space-y-2">
-            <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">Layanan Publik</span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Persyaratan Administrasi Persuratan</h2>
-            <p className="text-sm text-slate-600">Panduan syarat dokumen resmi pelayanan kantor Kelurahan Bonto Jaya.</p>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div className="space-y-1">
+              <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider block">Layanan Publik</span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Persyaratan Administrasi Persuratan</h2>
+              <p className="text-sm text-slate-600">Panduan syarat dokumen resmi pelayanan kantor Kelurahan Bonto Jaya.</p>
+            </div>
+
+            {/* Navigasi Carousel Slider */}
+            {layananList.length > 0 && (
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => scrollCarousel('left')}
+                  className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-700 flex items-center justify-center hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all shadow-xs active:scale-95 cursor-pointer"
+                  title="Geser Kiri"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => scrollCarousel('right')}
+                  className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-700 flex items-center justify-center hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all shadow-xs active:scale-95 cursor-pointer"
+                  title="Geser Kanan"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            )}
           </div>
 
           {layananList.length === 0 ? (
@@ -289,27 +332,121 @@ export default function HomePage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {layananList.map((item) => (
-                <div key={item.id} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-3 hover:border-emerald-300 transition-colors">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
-                    <FileText className="w-5 h-5" />
+            <div className="space-y-6">
+              {/* Carousel Track */}
+              <div
+                ref={carouselRef}
+                className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none pb-4 pt-1 px-1"
+              >
+                {layananList.map((item) => (
+                  <div
+                    key={item.id}
+                    className="w-[280px] sm:w-[320px] shrink-0 snap-start bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4 hover:border-emerald-300 hover:shadow-md transition-all flex flex-col justify-between"
+                  >
+                    <div className="space-y-3">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold shrink-0">
+                        <FileText className="w-5 h-5" />
+                      </div>
+                      <h3 className="font-extrabold text-slate-900 text-base leading-snug">{item.nama_surat}</h3>
+                      <ul className="text-xs text-slate-600 space-y-1.5 pt-1">
+                        {item.persyaratan.map((p, idx) => (
+                          <li key={idx} className="flex items-center gap-1.5">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" /> {p}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-                  <h3 className="font-extrabold text-slate-900 text-base">{item.nama_surat}</h3>
-                  <ul className="text-xs text-slate-600 space-y-1.5 pt-1">
-                    {item.persyaratan.map((p, idx) => (
-                      <li key={idx} className="flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" /> {p}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+                ))}
+              </div>
+
+              {/* Tombol Lihat Semua Layanan */}
+              <div className="text-center pt-2">
+                <button
+                  onClick={() => setShowAllLayananModal(true)}
+                  className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-6 py-3 rounded-2xl shadow-md transition-all active:scale-95 text-xs sm:text-sm cursor-pointer"
+                >
+                  <Layers className="w-4 h-4" /> Lihat Semua Persyaratan Layanan ({layananList.length} Surat)
+                </button>
+              </div>
             </div>
           )}
 
         </div>
       </section>
+
+      {/* MODAL POPUP: SEMUA LAYANAN & PENCARIAN */}
+      {showAllLayananModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-4xl rounded-3xl shadow-2xl p-6 sm:p-8 space-y-6 max-h-[85vh] overflow-y-auto flex flex-col">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div>
+                <h3 className="text-xl font-black text-slate-900">Daftar Lengkap Persyaratan Surat</h3>
+                <p className="text-xs text-slate-500 mt-0.5">Kelurahan Bonto Jaya — Total {layananList.length} Jenis Layanan</p>
+              </div>
+              <button
+                onClick={() => { setShowAllLayananModal(false); setSearchLayananQuery(''); }}
+                className="w-9 h-9 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full flex items-center justify-center font-bold text-sm transition-colors cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Input Pencarian */}
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Cari nama surat atau persyaratan (contoh: SKCK, Domisili, SKU, Pindah)..."
+                value={searchLayananQuery}
+                onChange={(e) => setSearchLayananQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-emerald-600 font-medium"
+              />
+              {searchLayananQuery && (
+                <button
+                  onClick={() => setSearchLayananQuery('')}
+                  className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600 text-xs font-bold cursor-pointer"
+                >
+                  Bersihkan
+                </button>
+              )}
+            </div>
+
+            {/* Grid Hasil */}
+            <div className="flex-1 overflow-y-auto pr-1">
+              {filteredLayananModal.length === 0 ? (
+                <div className="text-center py-10 space-y-2">
+                  <p className="text-sm font-bold text-slate-600">Tidak ada layanan surat yang cocok</p>
+                  <p className="text-xs text-slate-400">Coba kata kunci pencarian yang lain.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {filteredLayananModal.map((item) => (
+                    <div
+                      key={item.id}
+                      className="bg-slate-50/80 p-5 rounded-2xl border border-slate-200/80 space-y-3 hover:bg-white hover:border-emerald-300 hover:shadow-md transition-all"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold shrink-0">
+                          <FileText className="w-4 h-4" />
+                        </div>
+                        <h4 className="font-extrabold text-slate-900 text-sm leading-snug">{item.nama_surat}</h4>
+                      </div>
+                      <ul className="text-xs text-slate-600 space-y-1.5 pt-1 border-t border-slate-200/60">
+                        {item.persyaratan.map((p, idx) => (
+                          <li key={idx} className="flex items-center gap-1.5">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" /> {p}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 6. SOROTAN BERITA TERKINI */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
