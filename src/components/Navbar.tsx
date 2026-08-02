@@ -34,6 +34,10 @@ export default function Navbar() {
             {/* <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-700 via-emerald-600 to-teal-500 text-white flex items-center justify-center font-bold shadow-md group-hover:scale-105 transition-transform">
               <Building2 className="w-7 h-7" />
             </div> */}
+            <img 
+              src="/logo_Bantaeng.png" 
+              alt="Logo Kabupaten Bantaeng"
+              className="w-12 h-12 object-contain group-hover:scale-105 transition-transform" />
             <div>
               <span className="block text-xl font-extrabold text-slate-900 tracking-tight leading-none group-hover:text-emerald-700 transition-colors">
                 {DATA_DESA.nama}

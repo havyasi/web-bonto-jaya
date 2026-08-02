@@ -516,23 +516,23 @@ export default function AdminDashboardPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
 
       {/* Top Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 text-white p-6 sm:p-8 rounded-3xl shadow-lg">
-        <div className="flex items-center space-x-4">
-          <div className="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center shrink-0">
-            <ShieldCheck className="w-8 h-8 text-white" />
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 text-white p-5 sm:p-8 rounded-3xl shadow-lg">
+        <div className="flex items-center space-x-3 sm:space-x-4">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-600 rounded-2xl flex items-center justify-center shrink-0">
+            <ShieldCheck className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
           </div>
-          <div>
-            <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider block">Panel CMS Admin</span>
-            <h1 className="text-2xl font-black">Dasbor Pengelolaan Desa Bonto Jaya</h1>
-            <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-1.5">
+          <div className="min-w-0">
+            <span className="text-[10px] sm:text-xs font-bold text-emerald-400 uppercase tracking-wider block">Panel CMS Admin</span>
+            <h1 className="text-lg sm:text-2xl font-black leading-snug">Dasbor Pengelolaan Desa Bonto Jaya</h1>
+            <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
               {isConnected ? (
                 <>
-                  <Wifi className="w-3.5 h-3.5 text-emerald-400" />
+                  <Wifi className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                   <span className="text-emerald-400">Supabase PostgreSQL — Terhubung</span>
                 </>
               ) : (
                 <>
-                  <WifiOff className="w-3.5 h-3.5 text-amber-400" />
+                  <WifiOff className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                   <span className="text-amber-400">Mode Offline — Data Lokal</span>
                 </>
               )}
@@ -540,30 +540,30 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition-all active:scale-95"
-            >
-              <Plus className="w-4 h-4" /> Tambah UMKM
-            </button>
-            <button
-              onClick={() => setShowAddLayananModal(true)}
-              className="flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition-all active:scale-95"
-            >
-              <Plus className="w-4 h-4" /> Tambah Layanan Surat
-            </button>
-            <button
-              onClick={() => setShowAddBeritaModal(true)}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-md transition-all active:scale-95"
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto pt-3 md:pt-0 border-t border-slate-800 md:border-t-0">
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center justify-center gap-1.5 sm:gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 sm:px-4 py-2.5 rounded-xl text-xs shadow-md transition-all active:scale-95"
           >
-            <Plus className="w-4 h-4" /> Tambah Berita Baru
+            <Plus className="w-4 h-4 shrink-0" /> <span className="truncate">Tambah UMKM</span>
+          </button>
+          <button
+            onClick={() => setShowAddLayananModal(true)}
+            className="flex items-center justify-center gap-1.5 sm:gap-2 bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 sm:px-4 py-2.5 rounded-xl text-xs shadow-md transition-all active:scale-95"
+          >
+            <Plus className="w-4 h-4 shrink-0" /> <span className="truncate">Tambah Surat</span>
+          </button>
+          <button
+            onClick={() => setShowAddBeritaModal(true)}
+            className="flex items-center justify-center gap-1.5 sm:gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-3 sm:px-4 py-2.5 rounded-xl text-xs shadow-md transition-all active:scale-95"
+          >
+            <Plus className="w-4 h-4 shrink-0" /> <span className="truncate">Tambah Berita</span>
           </button>
           <Link
             href="/admin/login"
-            className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2.5 rounded-xl text-xs transition-colors border border-slate-700"
+            className="flex items-center justify-center gap-1.5 sm:gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-3 sm:px-4 py-2.5 rounded-xl text-xs transition-colors border border-slate-700"
           >
-            <LogOut className="w-4 h-4" /> Keluar
+            <LogOut className="w-4 h-4 shrink-0" /> <span className="truncate">Keluar</span>
           </Link>
         </div>
       </div>
@@ -591,8 +591,8 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Summary Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center space-x-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center space-x-4">
           <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center shrink-0">
             <MapPin className="w-6 h-6" />
           </div>
@@ -602,7 +602,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center space-x-4">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center space-x-4">
           <div className="w-12 h-12 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center shrink-0">
             <Newspaper className="w-6 h-6" />
           </div>
@@ -612,7 +612,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center space-x-4">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center space-x-4">
           <div className="w-12 h-12 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center shrink-0">
             <ClipboardList className="w-6 h-6" />
           </div>
@@ -622,7 +622,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center space-x-4">
+        <div className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center space-x-4">
           <div className="w-12 h-12 bg-purple-100 text-purple-700 rounded-xl flex items-center justify-center shrink-0">
             <Database className="w-6 h-6" />
           </div>
@@ -634,14 +634,14 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Tab Switcher & Data Table */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden p-6 space-y-6">
+      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden p-4 sm:p-6 space-y-6">
 
         {/* Navigation Tabs */}
-        <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-          <div className="flex items-center space-x-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
+          <div className="flex items-center space-x-2 overflow-x-auto pb-1.5 w-full sm:w-auto scrollbar-none">
             <button
               onClick={() => setActiveTab('umkm')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-extrabold transition-all ${activeTab === 'umkm'
+              className={`shrink-0 flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-extrabold transition-all ${activeTab === 'umkm'
                   ? 'bg-emerald-600 text-white shadow-md'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
@@ -650,7 +650,7 @@ export default function AdminDashboardPage() {
             </button>
             <button
               onClick={() => setActiveTab('berita')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-extrabold transition-all ${activeTab === 'berita'
+              className={`shrink-0 flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-extrabold transition-all ${activeTab === 'berita'
                   ? 'bg-blue-600 text-white shadow-md'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
@@ -659,7 +659,7 @@ export default function AdminDashboardPage() {
             </button>
             <button
               onClick={() => setActiveTab('layanan')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-extrabold transition-all ${activeTab === 'layanan'
+              className={`shrink-0 flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-extrabold transition-all ${activeTab === 'layanan'
                   ? 'bg-amber-600 text-white shadow-md'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
@@ -668,11 +668,11 @@ export default function AdminDashboardPage() {
             </button>
           </div>
 
-          <div>
+          <div className="shrink-0 flex justify-end">
             {activeTab === 'umkm' && (
               <button
                 onClick={() => setShowAddModal(true)}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-700"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg"
               >
                 <Plus className="w-4 h-4" /> Tambah UMKM
               </button>
@@ -680,7 +680,7 @@ export default function AdminDashboardPage() {
             {activeTab === 'berita' && (
               <button
                 onClick={() => setShowAddBeritaModal(true)}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-lg"
               >
                 <Plus className="w-4 h-4" /> Tambah Berita Baru
               </button>
@@ -688,7 +688,7 @@ export default function AdminDashboardPage() {
             {activeTab === 'layanan' && (
               <button
                 onClick={() => setShowAddLayananModal(true)}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 hover:text-amber-700"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 hover:text-amber-700 bg-amber-50 px-3 py-1.5 rounded-lg"
               >
                 <Plus className="w-4 h-4" /> Tambah Layanan Surat
               </button>
