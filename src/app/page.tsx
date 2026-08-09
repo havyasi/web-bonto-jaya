@@ -139,7 +139,7 @@ export default function HomePage() {
             </h1>
 
             <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-normal">
-              Solusi terpadu transparansi pelayanan publik dan etalase promosi spasial bagi UMKM & potensi lokal Kelurahan Bonto Jaya, Kec. {DATA_DESA.kecamatan}, Kab. {DATA_DESA.kabupaten}.
+              Solusi terpadu pelayanan publik, etalase promosi spasial bagi UMKM, dan potensi lokal Kelurahan Bonto Jaya, Kec. {DATA_DESA.kecamatan}, Kab. {DATA_DESA.kabupaten}.
             </p>
 
             <div className="pt-2 flex flex-wrap gap-4">
