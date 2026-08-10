@@ -42,11 +42,22 @@ export default function Footer() {
                   {DATA_DESA.email}
                 </a>
               </li>
-              <li className="flex items-center gap-2.5">
-                <Phone className="w-4 h-4 text-emerald-500 shrink-0" />
-                <a href={`tel:${DATA_DESA.telepon}`} className="hover:text-emerald-400 transition-colors">
-                  {DATA_DESA.telepon}
-                </a>
+              <li className="flex items-start gap-2.5">
+                <Phone className="w-4 h-4 text-emerald-500 shrink-0 mt-1" />
+                <div className="flex flex-col space-y-0.5">
+                  {DATA_DESA.telepon.split('\n').map((num, idx) => {
+                    const phoneOnly = num.replace(/[^0-9+]/g, '');
+                    return (
+                      <a
+                        key={idx}
+                        href={`tel:${phoneOnly}`}
+                        className="hover:text-emerald-400 transition-colors block"
+                      >
+                        {num}
+                      </a>
+                    );
+                  })}
+                </div>
               </li>
               <li className="flex items-start gap-2.5">
                 <Clock className="w-4 h-4 text-emerald-500 shrink-0 mt-1" />
@@ -67,6 +78,9 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/peta-umkm" className="hover:text-emerald-400 transition-colors">Peta GIS & Direktori UMKM</Link>
+              </li>
+              <li>
+                <Link href="/peta-lereng" className="hover:text-emerald-400 transition-colors">Peta Kelerengan (Slope Map)</Link>
               </li>
               <li>
                 <Link href="/berita" className="hover:text-emerald-400 transition-colors">Berita & Kabar Desa</Link>

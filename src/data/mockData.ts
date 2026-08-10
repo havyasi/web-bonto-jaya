@@ -47,6 +47,7 @@ export interface LayananSurat {
   id: string;
   nama_surat: string;
   persyaratan: string[];
+  kategori?: 'Pelayanan Umum' | 'Administrasi Kependudukan';
   created_at?: string;
 }
 
@@ -63,9 +64,9 @@ export const DATA_DESA = {
   jumlahRT: 14,
   jumlahRW: 7,
   alamatBalaiDesa: "Jl. Poros Desa Bonto Jaya No. 01, Kec. Bissappu",
-  email: "pemerintah@bontojaya.desa.id",
-  telepon: "0812-4567-8901",
-  jamPelayanan: "Senin - Jumat | 08.00 - 15.30 WITA",
+  email: "bontojayakel@gmail.com",
+  telepon: "085396610635 (Lurah)\n085340811117 (Pak Agus)",
+  jamPelayanan: "Senin - Jumat | 08.00 - 12.00 WITA",
   pusatKoordinat: [-5.5458585, 119.863438] as [number, number], // Koordinat sekitar Bantaeng/Sulsel
 };
 
@@ -115,44 +116,115 @@ export const LIST_PERANGKAT_DESA: PerangkatDesa[] = [
 ];
 
 export const LIST_LAYANAN: LayananSurat[] = [
+  // === PELAYANAN UMUM KANTOR KELURAHAN ===
   {
     id: "l-1",
     nama_surat: "Surat Keterangan Domisili",
+    kategori: "Pelayanan Umum",
     persyaratan: ["Pengantar RT / RW", "FC KTP & Kartu Keluarga", "Pasfoto 3x4 (2 Lembar)"],
   },
   {
     id: "l-2",
-    nama_surat: "Surat Pengantar SKCK",
-    persyaratan: ["Surat Pengantar RT / RW", "FC KTP & Kartu Keluarga", "FC Akta Kelahiran / Ijazah"],
+    nama_surat: "Surat Keterangan Sudah Menikah",
+    kategori: "Pelayanan Umum",
+    persyaratan: ["FC KTP & KK Suami-Istri", "FC Buku Nikah / Akta Nikah", "Pengantar RT / RW"],
   },
   {
     id: "l-3",
-    nama_surat: "Surat Keterangan Tidak Mampu (SKTM)",
-    persyaratan: ["Pengantar RT / RW", "FC KTP & Kartu Keluarga", "Surat Pernyataan Bermaterai"],
+    nama_surat: "Surat Keterangan Belum Menikah",
+    kategori: "Pelayanan Umum",
+    persyaratan: ["Pengantar RT / RW", "FC KTP & KK Pemohon", "Surat Pernyataan Belum Menikah"],
   },
   {
     id: "l-4",
-    nama_surat: "Surat Keterangan Usaha (SKU)",
-    persyaratan: ["Pengantar RT / RW", "FC KTP & Kartu Keluarga", "Foto Lokasi Usaha"],
-  },
-  {
-    id: "l-5",
-    nama_surat: "Surat Keterangan Kelahiran",
-    persyaratan: ["Pengantar RT / RW", "FC KTP Orang Tua & KK", "Surat Keterangan Bidan/RS"],
-  },
-  {
-    id: "l-6",
-    nama_surat: "Surat Keterangan Kematian",
-    persyaratan: ["Pengantar RT / RW", "FC KTP & KK Almarhum/ah", "Surat Keterangan Dokter/RS"],
-  },
-  {
-    id: "l-7",
     nama_surat: "Surat Keterangan Pindah",
+    kategori: "Pelayanan Umum",
     persyaratan: ["Pengantar RT / RW", "KTP & KK Asli", "Pasfoto 3x4 (4 Lembar)"],
   },
   {
+    id: "l-5",
+    nama_surat: "Surat Keterangan Usaha",
+    kategori: "Pelayanan Umum",
+    persyaratan: ["Pengantar RT / RW", "FC KTP & Kartu Keluarga", "Foto Lokasi Usaha"],
+  },
+  {
+    id: "l-6",
+    nama_surat: "Surat Keterangan Tidak Mampu (SKTM)",
+    kategori: "Pelayanan Umum",
+    persyaratan: ["Pengantar RT / RW", "FC KTP & Kartu Keluarga", "Surat Pernyataan Bermaterai"],
+  },
+  {
+    id: "l-7",
+    nama_surat: "Legalisasi / Pengesahan Surat",
+    kategori: "Pelayanan Umum",
+    persyaratan: ["Dokumen Asli yang akan dilegalisir", "FC KTP Pemohon", "Pengantar RT / RW"],
+  },
+  {
     id: "l-8",
-    nama_surat: "Surat Keterangan Belum Menikah",
-    persyaratan: ["Pengantar RT / RW", "FC KTP & KK Pemohon", "Surat Pernyataan Belum Menikah"],
-  }
+    nama_surat: "Surat Keterangan Hibah",
+    kategori: "Pelayanan Umum",
+    persyaratan: ["FC KTP & KK Pemberi dan Penerima Hibah", "Surat Pernyataan Hibah Bermaterai", "Pengantar RT / RW"],
+  },
+  {
+    id: "l-9",
+    nama_surat: "Surat Keterangan Beda Nama",
+    kategori: "Pelayanan Umum",
+    persyaratan: ["FC KTP & KK Pemohon", "Dokumen yang menunjukkan perbedaan nama", "Pengantar RT / RW"],
+  },
+  {
+    id: "l-10",
+    nama_surat: "Surat Keterangan Belum Memiliki Rumah",
+    kategori: "Pelayanan Umum",
+    persyaratan: ["Pengantar RT / RW", "FC KTP & KK Pemohon", "Surat Pernyataan Bermaterai"],
+  },
+  // === ADMINISTRASI KEPENDUDUKAN ===
+  {
+    id: "l-11",
+    nama_surat: "Kartu Keluarga (KK)",
+    kategori: "Administrasi Kependudukan",
+    persyaratan: ["FC KTP Kepala Keluarga", "FC Surat Nikah / Akta Nikah", "FC Akta Kelahiran Anggota Keluarga", "Pengantar RT / RW"],
+  },
+  {
+    id: "l-12",
+    nama_surat: "Kartu Tanda Penduduk (KTP) Elektronik",
+    kategori: "Administrasi Kependudukan",
+    persyaratan: ["FC Kartu Keluarga (KK)", "Surat Pengantar RT / RW", "FC Akta Kelahiran / Ijazah"],
+  },
+  {
+    id: "l-13",
+    nama_surat: "Surat Keterangan Pindah Datang",
+    kategori: "Administrasi Kependudukan",
+    persyaratan: ["Surat Keterangan Pindah dari daerah asal", "FC KTP & KK", "Pengantar RT / RW tujuan"],
+  },
+  {
+    id: "l-14",
+    nama_surat: "Surat Keterangan Pindah Keluar",
+    kategori: "Administrasi Kependudukan",
+    persyaratan: ["KTP & KK Asli", "Pengantar RT / RW", "Pasfoto 3x4 (4 Lembar)"],
+  },
+  {
+    id: "l-15",
+    nama_surat: "Akta Kelahiran",
+    kategori: "Administrasi Kependudukan",
+    persyaratan: ["Surat Keterangan Lahir dari Bidan / RS", "FC KTP & KK Orang Tua", "FC Buku Nikah Orang Tua", "Pengantar RT / RW"],
+  },
+  {
+    id: "l-16",
+    nama_surat: "Akta Kematian",
+    kategori: "Administrasi Kependudukan",
+    persyaratan: ["Surat Keterangan Kematian dari Dokter / RS", "FC KTP & KK Almarhum/ah", "FC KTP Pelapor", "Pengantar RT / RW"],
+  },
+  {
+    id: "l-17",
+    nama_surat: "Perubahan Data Kependudukan",
+    kategori: "Administrasi Kependudukan",
+    persyaratan: ["FC KTP & KK", "Dokumen pendukung perubahan data", "Surat Pernyataan Bermaterai", "Pengantar RT / RW"],
+  },
+  {
+    id: "l-18",
+    nama_surat: "Surat Keterangan Domisili (Kependudukan)",
+    kategori: "Administrasi Kependudukan",
+    persyaratan: ["Pengantar RT / RW", "FC KTP & Kartu Keluarga", "Pasfoto 3x4 (2 Lembar)"],
+  },
 ];
+

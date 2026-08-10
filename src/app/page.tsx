@@ -21,7 +21,9 @@ import {
   ChevronLeft,
   Search,
   X,
-  Layers
+  Layers,
+  ClipboardList,
+  Mountain
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -34,6 +36,7 @@ export default function HomePage() {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [showAllLayananModal, setShowAllLayananModal] = useState(false);
   const [searchLayananQuery, setSearchLayananQuery] = useState('');
+  const [activeLayananTab, setActiveLayananTab] = useState<'Pelayanan Umum' | 'Administrasi Kependudukan'>('Pelayanan Umum');
 
   const scrollCarousel = (direction: 'left' | 'right') => {
     if (carouselRef.current) {
@@ -90,9 +93,13 @@ export default function HomePage() {
             id: row.id,
             nama_surat: row.nama_surat,
             persyaratan: row.persyaratan ?? [],
+            kategori: row.kategori ?? 'Pelayanan Umum',
             created_at: row.created_at,
           }));
-          setLayananList(mappedL);
+          // Merge: keep Supabase data + add mock items for categories not covered by Supabase
+          const supabaseKategori = new Set(mappedL.map(l => l.kategori));
+          const mockExtras = MOCK_LAYANAN.filter(m => m.kategori && !supabaseKategori.has(m.kategori));
+          setLayananList([...mappedL, ...mockExtras]);
         }
       } catch (err) {
         console.warn('Gagal mengambil data dari Supabase:', err);
@@ -106,9 +113,14 @@ export default function HomePage() {
   const featuredUMKM = umkmList.slice(0, 3);
   const featuredBerita = beritaList.slice(0, 3);
 
+  const layananPelayananUmum = layananList.filter((item) => item.kategori === 'Pelayanan Umum');
+  const layananAdminKependudukan = layananList.filter((item) => item.kategori === 'Administrasi Kependudukan');
+  const activeLayananList = activeLayananTab === 'Pelayanan Umum' ? layananPelayananUmum : layananAdminKependudukan;
+
   const filteredLayananModal = layananList.filter((item) =>
-    item.nama_surat.toLowerCase().includes(searchLayananQuery.toLowerCase()) ||
-    item.persyaratan.some((p) => p.toLowerCase().includes(searchLayananQuery.toLowerCase()))
+    (searchLayananQuery === '' ? item.kategori === activeLayananTab : true) &&
+    (item.nama_surat.toLowerCase().includes(searchLayananQuery.toLowerCase()) ||
+    item.persyaratan.some((p) => p.toLowerCase().includes(searchLayananQuery.toLowerCase())))
   );
 
   return (
@@ -226,6 +238,25 @@ export default function HomePage() {
         </div>
 
         <PetaLeafletWrapper dataUMKM={umkmList} />
+
+        {/* Banner Peta Kelerengan (PNG) */}
+        <div className="bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6 border border-emerald-500/20">
+          <div className="space-y-2 max-w-2xl">
+            <div className="inline-flex items-center gap-2 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-full text-xs font-bold">
+              <Mountain className="w-4 h-4 text-emerald-400" /> Peta Kelerengan (Slope Map) PNG
+            </div>
+            <h3 className="text-xl sm:text-2xl font-black tracking-tight">Dokumen Spasial Peta Kelerengan Kelurahan Bonto Jaya</h3>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              Lihat peta topografi kelerengan, tingkat kemiringan kontur tanah, dan zona kerawanan wilayah dalam bentuk peta PNG resolusi tinggi.
+            </p>
+          </div>
+          <Link
+            href="/peta-lereng"
+            className="inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-6 py-3.5 rounded-2xl shadow-lg transition-all active:scale-95 text-xs sm:text-sm shrink-0"
+          >
+            <Mountain className="w-4.5 h-4.5" /> Buka Peta Kelerengan <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
       </section>
 
       {/* 4. UMKM UNGGULAN GRID */}
@@ -291,7 +322,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 5. LAYANAN ADMINISTRASI CEPAT (CAROUSEL & MODAL) */}
+      {/* 5. LAYANAN ADMINISTRASI CEPAT (TABBED & MODAL) */}
       <section className="bg-slate-100/80 py-16 border-y border-slate-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           
@@ -323,6 +354,40 @@ export default function HomePage() {
             )}
           </div>
 
+          {/* Tab Kategori */}
+          {layananList.length > 0 && (
+            <div className="flex gap-3 flex-wrap">
+              <button
+                onClick={() => setActiveLayananTab('Pelayanan Umum')}
+                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                  activeLayananTab === 'Pelayanan Umum'
+                    ? 'bg-emerald-700 text-white shadow-md'
+                    : 'bg-white text-slate-700 border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50'
+                }`}
+              >
+                <Building className="w-4 h-4" />
+                Pelayanan Umum
+                <span className={`ml-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
+                  activeLayananTab === 'Pelayanan Umum' ? 'bg-emerald-600 text-emerald-100' : 'bg-slate-100 text-slate-500'
+                }`}>{layananPelayananUmum.length}</span>
+              </button>
+              <button
+                onClick={() => setActiveLayananTab('Administrasi Kependudukan')}
+                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                  activeLayananTab === 'Administrasi Kependudukan'
+                    ? 'bg-emerald-700 text-white shadow-md'
+                    : 'bg-white text-slate-700 border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50'
+                }`}
+              >
+                <ClipboardList className="w-4 h-4" />
+                Administrasi Kependudukan
+                <span className={`ml-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
+                  activeLayananTab === 'Administrasi Kependudukan' ? 'bg-emerald-600 text-emerald-100' : 'bg-slate-100 text-slate-500'
+                }`}>{layananAdminKependudukan.length}</span>
+              </button>
+            </div>
+          )}
+
           {layananList.length === 0 ? (
             <div className="text-center py-12 bg-white rounded-3xl border border-slate-200/80 p-8 space-y-3">
               <FileText className="w-12 h-12 text-slate-300 mx-auto" />
@@ -338,14 +403,16 @@ export default function HomePage() {
                 ref={carouselRef}
                 className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none pb-4 pt-1 px-1"
               >
-                {layananList.map((item) => (
+                {activeLayananList.map((item) => (
                   <div
                     key={item.id}
                     className="w-[280px] sm:w-[320px] shrink-0 snap-start bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4 hover:border-emerald-300 hover:shadow-md transition-all flex flex-col justify-between"
                   >
                     <div className="space-y-3">
-                      <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold shrink-0">
-                        <FileText className="w-5 h-5" />
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold shrink-0 ${
+                        item.kategori === 'Pelayanan Umum' ? 'bg-emerald-100 text-emerald-700' : 'bg-sky-100 text-sky-700'
+                      }`}>
+                        {item.kategori === 'Pelayanan Umum' ? <FileText className="w-5 h-5" /> : <ClipboardList className="w-5 h-5" />}
                       </div>
                       <h3 className="font-extrabold text-slate-900 text-base leading-snug">{item.nama_surat}</h3>
                       <ul className="text-xs text-slate-600 space-y-1.5 pt-1">
@@ -392,12 +459,36 @@ export default function HomePage() {
               </button>
             </div>
 
+            {/* Tab Kategori di Modal */}
+            <div className="flex gap-3 flex-wrap">
+              <button
+                onClick={() => { setActiveLayananTab('Pelayanan Umum'); setSearchLayananQuery(''); }}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  activeLayananTab === 'Pelayanan Umum'
+                    ? 'bg-emerald-700 text-white shadow-md'
+                    : 'bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-700'
+                }`}
+              >
+                <Building className="w-3.5 h-3.5" /> Pelayanan Umum ({layananPelayananUmum.length})
+              </button>
+              <button
+                onClick={() => { setActiveLayananTab('Administrasi Kependudukan'); setSearchLayananQuery(''); }}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  activeLayananTab === 'Administrasi Kependudukan'
+                    ? 'bg-emerald-700 text-white shadow-md'
+                    : 'bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-700'
+                }`}
+              >
+                <ClipboardList className="w-3.5 h-3.5" /> Administrasi Kependudukan ({layananAdminKependudukan.length})
+              </button>
+            </div>
+
             {/* Input Pencarian */}
             <div className="relative">
               <Search className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" />
               <input
                 type="text"
-                placeholder="Cari nama surat atau persyaratan (contoh: SKCK, Domisili, SKU, Pindah)..."
+                placeholder="Cari nama surat atau persyaratan (contoh: Domisili, KTP, Pindah)..."
                 value={searchLayananQuery}
                 onChange={(e) => setSearchLayananQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-emerald-600 font-medium"
@@ -427,10 +518,17 @@ export default function HomePage() {
                       className="bg-slate-50/80 p-5 rounded-2xl border border-slate-200/80 space-y-3 hover:bg-white hover:border-emerald-300 hover:shadow-md transition-all"
                     >
                       <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold shrink-0">
-                          <FileText className="w-4 h-4" />
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold shrink-0 ${
+                          item.kategori === 'Pelayanan Umum' ? 'bg-emerald-600 text-white' : 'bg-sky-600 text-white'
+                        }`}>
+                          {item.kategori === 'Pelayanan Umum' ? <FileText className="w-4 h-4" /> : <ClipboardList className="w-4 h-4" />}
                         </div>
-                        <h4 className="font-extrabold text-slate-900 text-sm leading-snug">{item.nama_surat}</h4>
+                        <div>
+                          <h4 className="font-extrabold text-slate-900 text-sm leading-snug">{item.nama_surat}</h4>
+                          <span className={`text-[10px] font-bold ${
+                            item.kategori === 'Pelayanan Umum' ? 'text-emerald-600' : 'text-sky-600'
+                          }`}>{item.kategori}</span>
+                        </div>
                       </div>
                       <ul className="text-xs text-slate-600 space-y-1.5 pt-1 border-t border-slate-200/60">
                         {item.persyaratan.map((p, idx) => (

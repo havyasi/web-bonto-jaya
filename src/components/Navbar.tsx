@@ -14,6 +14,7 @@ export default function Navbar() {
     { name: 'Beranda', href: '/', icon: Home },
     { name: 'Profil Desa', href: '/profil', icon: Building2 },
     { name: 'Peta UMKM', href: '/peta-umkm', icon: MapPin },
+    { name: 'Peta Kelerengan', href: '/peta-lereng', icon: Mountain },
     { name: 'Pusat Informasi', href: '/berita', icon: Newspaper },
     { name: 'Admin CMS', href: '/admin/login', icon: ShieldCheck },
   ];

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { LIST_UMKM as MOCK_UMKM, LIST_BERITA as MOCK_BERITA, UMKM, Berita, LayananSurat } from '@/data/mockData';
+import { LIST_UMKM as MOCK_UMKM, LIST_BERITA as MOCK_BERITA, LIST_LAYANAN as MOCK_LAYANAN, UMKM, Berita, LayananSurat } from '@/data/mockData';
 import { supabase } from '@/lib/supabase';
 import {
   ShieldCheck,
@@ -79,6 +79,7 @@ export default function AdminDashboardPage() {
   // Layanan Surat Form state
   const [namaLayanan, setNamaLayanan] = useState('');
   const [persyaratanLayanan, setPersyaratanLayanan] = useState<string[]>(['']);
+  const [kategoriLayanan, setKategoriLayanan] = useState<'Pelayanan Umum' | 'Administrasi Kependudukan'>('Pelayanan Umum');
 
   // Fetch initial data from Supabase
   useEffect(() => {
@@ -156,9 +157,15 @@ export default function AdminDashboardPage() {
           id: row.id,
           nama_surat: row.nama_surat,
           persyaratan: row.persyaratan ?? [],
+          kategori: row.kategori ?? 'Pelayanan Umum',
           created_at: row.created_at,
         }));
-        setLayananList(mappedLayanan);
+        // Merge: gabungkan data Supabase + mock data untuk kategori yang belum ada di Supabase
+        const supabaseKategori = new Set(mappedLayanan.map(l => l.kategori));
+        const mockExtras = MOCK_LAYANAN.filter(m => m.kategori && !supabaseKategori.has(m.kategori));
+        setLayananList([...mappedLayanan, ...mockExtras]);
+      } else {
+        setLayananList(MOCK_LAYANAN);
       }
 
     } catch (err) {
@@ -426,6 +433,7 @@ export default function AdminDashboardPage() {
   function resetLayananForm() {
     setNamaLayanan('');
     setPersyaratanLayanan(['']);
+    setKategoriLayanan('Pelayanan Umum');
     setEditingLayananId(null);
   }
 
@@ -433,6 +441,7 @@ export default function AdminDashboardPage() {
     setEditingLayananId(item.id);
     setNamaLayanan(item.nama_surat);
     setPersyaratanLayanan(item.persyaratan.length > 0 ? [...item.persyaratan] : ['']);
+    setKategoriLayanan(item.kategori ?? 'Pelayanan Umum');
     setShowAddLayananModal(true);
   };
 
@@ -448,25 +457,44 @@ export default function AdminDashboardPage() {
         return;
       }
 
-      const newEntry = {
+      const payload: any = {
         nama_surat: namaLayanan,
         persyaratan: cleanPersyaratan,
+        kategori: kategoriLayanan,
       };
 
       if (isConnected) {
         if (editingLayananId) {
-          const { error } = await supabase.from('layanan_surat').update(newEntry).eq('id', editingLayananId);
-          if (error) throw error;
+          const { error } = await supabase.from('layanan_surat').update(payload).eq('id', editingLayananId);
+          if (error) {
+            if (error.message?.includes('kategori')) {
+              // Supabase table does not have 'kategori' column yet, fallback without it
+              delete payload.kategori;
+              const retry = await supabase.from('layanan_surat').update(payload).eq('id', editingLayananId);
+              if (retry.error) throw retry.error;
+            } else {
+              throw error;
+            }
+          }
         } else {
-          const { error } = await supabase.from('layanan_surat').insert(newEntry);
-          if (error) throw error;
+          const { error } = await supabase.from('layanan_surat').insert(payload);
+          if (error) {
+            if (error.message?.includes('kategori')) {
+              // Supabase table does not have 'kategori' column yet, fallback without it
+              delete payload.kategori;
+              const retry = await supabase.from('layanan_surat').insert(payload);
+              if (retry.error) throw retry.error;
+            } else {
+              throw error;
+            }
+          }
         }
         await fetchAllData();
       } else {
         if (editingLayananId) {
-          setLayananList(layananList.map(l => l.id === editingLayananId ? { ...l, ...newEntry } : l));
+          setLayananList(layananList.map(l => l.id === editingLayananId ? { ...l, ...payload } : l));
         } else {
-          setLayananList([{ id: `layanan-${Date.now()}`, ...newEntry }, ...layananList]);
+          setLayananList([{ id: `layanan-${Date.now()}`, ...payload }, ...layananList]);
         }
       }
 
@@ -836,10 +864,17 @@ export default function AdminDashboardPage() {
                     <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
                       <td className="p-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 bg-amber-100 text-amber-700 rounded-lg flex items-center justify-center shrink-0">
-                            <FileText className="w-4 h-4" />
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                            item.kategori === 'Administrasi Kependudukan' ? 'bg-sky-100 text-sky-700' : 'bg-amber-100 text-amber-700'
+                          }`}>
+                            {item.kategori === 'Administrasi Kependudukan' ? <ClipboardList className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
                           </div>
-                          <span className="font-extrabold text-slate-900">{item.nama_surat}</span>
+                          <div>
+                            <span className="font-extrabold text-slate-900 block">{item.nama_surat}</span>
+                            <span className={`text-[10px] font-bold ${
+                              item.kategori === 'Administrasi Kependudukan' ? 'text-sky-600' : 'text-amber-600'
+                            }`}>{item.kategori ?? 'Pelayanan Umum'}</span>
+                          </div>
                         </div>
                       </td>
                       <td className="p-3">
@@ -1041,6 +1076,18 @@ export default function AdminDashboardPage() {
               <div>
                 <label className="block text-slate-700 mb-1">Nama Jenis Surat</label>
                 <input type="text" required placeholder="Contoh: Surat Keterangan Usaha (SKU)" value={namaLayanan} onChange={(e) => setNamaLayanan(e.target.value)} className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl" />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 mb-1">Kategori Layanan</label>
+                <select
+                  value={kategoriLayanan}
+                  onChange={(e) => setKategoriLayanan(e.target.value as 'Pelayanan Umum' | 'Administrasi Kependudukan')}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer"
+                >
+                  <option value="Pelayanan Umum">Pelayanan Umum Kantor Kelurahan</option>
+                  <option value="Administrasi Kependudukan">Administrasi Kependudukan</option>
+                </select>
               </div>
 
               <div className="space-y-2">

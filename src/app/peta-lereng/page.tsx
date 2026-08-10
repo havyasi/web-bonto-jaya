@@ -15,6 +15,14 @@ export default function PetaLerengPage() {
 
   const [imgSrc, setImgSrc] = useState(petaImageUrl);
 
+  const handleImageError = () => {
+    if (imgSrc === '/peta-lereng.png') {
+      setImgSrc('/peta-lereng copy.png');
+    } else {
+      setImgSrc(fallbackImageUrl);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       
@@ -75,7 +83,7 @@ export default function PetaLerengPage() {
         >
           <img
             src={imgSrc}
-            onError={() => setImgSrc(fallbackImageUrl)}
+            onError={handleImageError}
             alt="Peta Kelerengan Kelurahan Bonto Jaya"
             className="w-full h-auto max-h-[750px] object-contain transition-transform duration-300 group-hover:scale-[1.01]"
           />
@@ -131,21 +139,6 @@ export default function PetaLerengPage() {
           </div>
         </div>
       )}
-
-      {/* Info Guide Card */}
-      <div className="bg-emerald-50 border border-emerald-200/80 rounded-3xl p-6 sm:p-8 text-emerald-950 space-y-3">
-        <div className="flex items-center gap-2 font-bold text-emerald-900 text-sm sm:text-base">
-          <Info className="w-5 h-5 text-emerald-700" /> Cara Mengganti Gambar Peta Kelerengan (File PNG):
-        </div>
-        <p className="text-xs sm:text-sm text-emerald-800 leading-relaxed">
-          Untuk memasukkan file gambar PNG hasil ekspor GIS dari teman Anda:
-        </p>
-        <ol className="text-xs sm:text-sm text-emerald-900 space-y-1.5 list-decimal list-inside font-medium bg-white/70 p-4 rounded-2xl border border-emerald-200/50">
-          <li>Simpan file gambar PNG buatan teman Anda dengan nama file: <code className="bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded font-mono font-bold">peta-lereng.png</code></li>
-          <li>Masukkan file tersebut ke dalam folder project: <code className="bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded font-mono font-bold">public/peta-lereng.png</code></li>
-          <li>Gambar peta di halaman ini akan otomatis berubah mengikuti file PNG tersebut!</li>
-        </ol>
-      </div>
 
     </div>
   );
